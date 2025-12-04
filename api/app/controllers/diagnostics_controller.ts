@@ -2,9 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import DiagnosticsService from '#services/diagnostics_service'
 import { createDiagnosticValidator, updateFinalScoreValidator } from '#validators/diagnostic'
 import { inject } from '@adonisjs/core'
-import { ApiOperation, ApiBody, ApiResponse } from '@foadonis/openapi/decorators'
+import { ApiOperation, ApiResponse } from '@foadonis/openapi/decorators'
 import Diagnostic from '#models/diagnostic'
-import { MessageResponse } from '#responses/message_response'
 
 @inject()
 export default class DiagnosticsController {
@@ -15,7 +14,7 @@ export default class DiagnosticsController {
    * Récupère tous les diagnostics (avec pagination)
    */
   @ApiOperation({ summary: 'List all diagnostics with pagination' })
-  @ApiResponse({ type: [Diagnostic] })
+  @ApiResponse({ type: () => [Diagnostic] })
   async index({ request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
@@ -34,8 +33,7 @@ export default class DiagnosticsController {
    * Crée un nouveau diagnostic pour un utilisateur
    */
   @ApiOperation({ summary: 'Create a new diagnostic for a user' })
-  @ApiBody({ type: () => createDiagnosticValidator })
-  @ApiResponse({ type: Diagnostic })
+  @ApiResponse({ type: () => Diagnostic })
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createDiagnosticValidator)
     const diagnostic = await this.diagnosticsService.createDiagnostic(payload.userId)
@@ -51,7 +49,7 @@ export default class DiagnosticsController {
    * Récupère un diagnostic spécifique avec toutes ses réponses
    */
   @ApiOperation({ summary: 'Get a specific diagnostic with all its answers' })
-  @ApiResponse({ type: Diagnostic })
+  @ApiResponse({ type: () => Diagnostic })
   async show({ params, response }: HttpContext) {
     const diagnostic = await this.diagnosticsService.getDiagnosticById(params.id)
 
@@ -65,8 +63,7 @@ export default class DiagnosticsController {
    * Met à jour le score final d'un diagnostic
    */
   @ApiOperation({ summary: 'Update the final score of a diagnostic' })
-  @ApiBody({ type: () => updateFinalScoreValidator })
-  @ApiResponse({ type: Diagnostic })
+  @ApiResponse({ type: () => Diagnostic })
   async finalize({ params, request, response }: HttpContext) {
     const payload = await request.validateUsing(updateFinalScoreValidator)
     const diagnostic = await this.diagnosticsService.finalizeDiagnostic(
@@ -85,7 +82,6 @@ export default class DiagnosticsController {
    * Supprime un diagnostic et toutes ses réponses
    */
   @ApiOperation({ summary: 'Delete a diagnostic and all its answers' })
-  @ApiResponse({ type: MessageResponse })
   async destroy({ params, response }: HttpContext) {
     await this.diagnosticsService.deleteDiagnostic(params.id)
 
@@ -99,7 +95,7 @@ export default class DiagnosticsController {
    * Récupère tous les diagnostics d'un utilisateur spécifique
    */
   @ApiOperation({ summary: 'Get all diagnostics for a specific user' })
-  @ApiResponse({ type: [Diagnostic] })
+  @ApiResponse({ type: () => [Diagnostic] })
   async byUser({ params, request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
@@ -120,6 +116,8 @@ export default class DiagnosticsController {
    * POST /diagnostics/:id/calculate-score
    * Calcule automatiquement le score final basé sur les réponses
    */
+  @ApiOperation({ summary: 'Calculate the final score based on answers' })
+  @ApiResponse({ type: () => Diagnostic })
   async calculateScore({ params, response }: HttpContext) {
     const diagnostic = await this.diagnosticsService.calculateDiagnosticScore(params.id)
 

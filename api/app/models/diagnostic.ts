@@ -3,6 +3,7 @@ import { BaseModel, column, belongsTo, hasMany, beforeCreate } from '@adonisjs/l
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
 import DiagnosticAnswer from '#models/diagnostic_answer'
+import { ApiProperty } from '@foadonis/openapi/decorators'
 
 export interface FinalScore {
   global: number
@@ -14,29 +15,34 @@ export interface FinalScore {
 }
 
 export default class Diagnostic extends BaseModel {
+  @ApiProperty({ description: 'Diagnostic ID (UUID)' })
   @column({ isPrimary: true })
   declare id: string
 
+  @ApiProperty({ description: 'User ID (UUID)' })
   @column()
   declare userId: string
 
+  @ApiProperty({ description: 'Final score object', required: false, type: 'object' })
   @column({
     prepare: (value: FinalScore | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | null) => (value ? (JSON.parse(value) as FinalScore) : null),
   })
   declare finalScore: FinalScore | null
 
+  @ApiProperty({ description: 'Creation date', type: 'string' })
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
+  @ApiProperty({ description: 'Last update date', required: false, type: 'string' })
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => User)
-  declare user: BelongsTo<typeof User>
+  declare user?: BelongsTo<typeof User>
 
   @hasMany(() => DiagnosticAnswer)
-  declare answers: HasMany<typeof DiagnosticAnswer>
+  declare answers?: HasMany<typeof DiagnosticAnswer>
 
   @beforeCreate()
   static assignUuid(diagnostic: Diagnostic) {
