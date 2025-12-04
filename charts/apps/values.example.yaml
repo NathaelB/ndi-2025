@@ -1,0 +1,284 @@
+# Exemple de fichier de configuration personnalisé
+# Copiez ce fichier et adaptez-le à vos besoins :
+# cp values.example.yaml values-production.yaml
+# helm install myapps ./charts/apps -f values-production.yaml
+
+# Configuration globale
+global:
+  # Politique de pull des images (Always, IfNotPresent, Never)
+  imagePullPolicy: Always
+
+  # Secrets pour accéder à un registry privé
+  imagePullSecrets: []
+  # - name: regcred
+
+# Applications
+apps:
+
+  # ============================================
+  # WEBAPP - Application Frontend
+  # ============================================
+  webapp:
+    # Activer ou désactiver le déploiement de la webapp
+    enabled: true
+
+    # Nombre de réplicas pour la haute disponibilité
+    replicaCount: 2
+
+    # Configuration de l'image Docker
+    image:
+      repository: ghcr.io/nathaelb/ndi-2025-webapp
+      tag: "latest"
+      pullPolicy: Always
+
+    # Port sur lequel l'application écoute
+    containerPort: 3000
+
+    # Configuration du service Kubernetes
+    service:
+      type: ClusterIP
+      port: 80
+
+    # Configuration de l'Ingress (exposition externe)
+    ingress:
+      enabled: true
+      className: "traefik"
+
+      # Annotations pour Traefik et cert-manager
+      annotations:
+        # ClusterIssuer pour les certificats SSL (letsencrypt-prod ou letsencrypt-staging)
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        # Configuration Traefik
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+
+      # Configuration des domaines
+      hosts:
+        - host: webapp.example.com  # ⚠️ À REMPLACER par votre domaine
+          paths:
+            - path: /
+              pathType: Prefix
+
+      # Configuration TLS/SSL
+      tls:
+        - secretName: webapp-tls
+          hosts:
+            - webapp.example.com  # ⚠️ À REMPLACER par votre domaine
+
+    # Variables d'environnement
+    env:
+      - name: NODE_ENV
+        value: "production"
+      # Ajoutez vos variables d'environnement ici
+      # - name: API_URL
+      #   value: "https://api.example.com"
+      # - name: KEYCLOAK_URL
+      #   value: "https://keycloak.example.com"
+
+    # Limites de ressources CPU/Mémoire
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+    # Health checks - Liveness probe
+    livenessProbe:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    # Health checks - Readiness probe
+    readinessProbe:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    # Configuration de l'autoscaling (horizontal pod autoscaler)
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+
+    # Service Account
+    serviceAccount:
+      create: true
+      automount: true
+      annotations: {}
+      name: ""
+
+    # Annotations et labels des pods
+    podAnnotations: {}
+    podLabels:
+      tier: frontend
+      app: webapp
+
+    # Security contexts
+    podSecurityContext: {}
+    securityContext: {}
+
+    # Volumes et volumeMounts
+    volumes: []
+    volumeMounts: []
+
+    # Sélection des nœuds
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  # ============================================
+  # API - Application Backend
+  # ============================================
+  api:
+    # Désactivé par défaut - Activez quand vous êtes prêt
+    enabled: false
+
+    # Nombre de réplicas
+    replicaCount: 2
+
+    # Configuration de l'image Docker
+    image:
+      repository: ghcr.io/nathaelb/ndi-2025-api
+      tag: "latest"
+      pullPolicy: Always
+
+    # Port sur lequel l'API écoute
+    containerPort: 8080
+
+    # Configuration du service
+    service:
+      type: ClusterIP
+      port: 80
+
+    # Configuration de l'Ingress
+    ingress:
+      enabled: true
+      className: "traefik"
+
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        # Optionnel : CORS headers
+        # traefik.ingress.kubernetes.io/router.middlewares: default-cors@kubernetescrd
+
+      hosts:
+        - host: api.example.com  # ⚠️ À REMPLACER par votre domaine
+          paths:
+            - path: /
+              pathType: Prefix
+
+      tls:
+        - secretName: api-tls
+          hosts:
+            - api.example.com  # ⚠️ À REMPLACER par votre domaine
+
+    # Variables d'environnement pour l'API
+    env:
+      - name: NODE_ENV
+        value: "production"
+      # Exemples de variables pour l'API
+      # - name: DATABASE_URL
+      #   value: "postgresql://user:password@postgres:5432/dbname"
+      # - name: REDIS_URL
+      #   value: "redis://redis:6379"
+      # - name: JWT_SECRET
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: api-secrets
+      #       key: jwt-secret
+
+    # Ressources pour l'API (généralement plus que la webapp)
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+    # Health checks - adaptez les paths selon votre API
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    # Autoscaling pour l'API
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+
+    # Service Account
+    serviceAccount:
+      create: true
+      automount: true
+      annotations: {}
+      name: ""
+
+    # Annotations et labels
+    podAnnotations: {}
+    podLabels:
+      tier: backend
+      app: api
+
+    # Security contexts
+    podSecurityContext: {}
+    securityContext: {}
+
+    # Volumes et volumeMounts
+    volumes: []
+    volumeMounts: []
+
+    # Sélection des nœuds
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+# ============================================
+# NOTES D'UTILISATION
+# ============================================
+#
+# Pour déployer ce chart :
+#   helm install myapps ./charts/apps -f values-production.yaml
+#
+# Pour mettre à jour :
+#   helm upgrade myapps ./charts/apps -f values-production.yaml
+#
+# Pour activer uniquement la webapp :
+#   helm install webapp ./charts/apps --set apps.api.enabled=false
+#
+# Pour activer webapp et api :
+#   helm install mystack ./charts/apps --set apps.webapp.enabled=true --set apps.api.enabled=true
+#
+# Pour changer le domaine en ligne de commande :
+#   helm install myapps ./charts/apps \
+#     --set apps.webapp.ingress.hosts[0].host=myapp.mydomain.com \
+#     --set apps.webapp.ingress.tls[0].hosts[0]=myapp.mydomain.com
+#
+# ============================================

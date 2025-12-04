@@ -1,0 +1,215 @@
+# Default values for apps chart
+# This chart supports multiple applications deployment
+
+# Global configuration
+global:
+  # Default image pull policy
+  imagePullPolicy: Always
+  # Default image pull secrets
+  imagePullSecrets: []
+
+# Applications configuration
+apps:
+  # Webapp configuration
+  webapp:
+    enabled: true
+    replicaCount: 2
+
+    image:
+      repository: ghcr.io/nathaelb/ndi-2025-webapp
+      tag: "e876421a940a77b92dfa76bdf46519e170873d31c7cd6852a688af29ac250979"
+      pullPolicy: Always
+
+    # Container configuration
+    containerPort: 3000
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 80
+
+    # Ingress configuration
+    ingress:
+      enabled: true
+      className: "traefik"
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+      hosts:
+        - host: ndi.urnontpellier.fr
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: webapp-tls
+          hosts:
+            - ndi.urnontpellier.fr
+
+    # Environment variables
+    env: []
+      # - name: NODE_ENV
+      #   value: "production"
+      # - name: API_URL
+      #   value: "https://api.example.com"
+
+    # Resources
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+    # Probes
+    livenessProbe:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    # Autoscaling
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+
+    # Service Account
+    serviceAccount:
+      create: true
+      automount: true
+      annotations: {}
+      name: ""
+
+    # Pod configuration
+    podAnnotations: {}
+    podLabels:
+      tier: frontend
+
+    podSecurityContext: {}
+    securityContext: {}
+
+    # Volumes
+    volumes: []
+    volumeMounts: []
+
+    # Node selection
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  # API configuration
+  api:
+    enabled: false
+    replicaCount: 2
+
+    image:
+      repository: ghcr.io/nathaelb/ndi-2025-api
+      tag: "latest"
+      pullPolicy: Always
+
+    # Container configuration
+    containerPort: 8080
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 80
+
+    # Ingress configuration
+    ingress:
+      enabled: true
+      className: "traefik"
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+      hosts:
+        - host: api.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: api-tls
+          hosts:
+            - api.example.com
+
+    # Environment variables
+    env: []
+      # - name: NODE_ENV
+      #   value: "production"
+      # - name: DATABASE_URL
+      #   value: "postgresql://..."
+
+    # Resources
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+    # Probes
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    # Autoscaling
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 80
+
+    # Service Account
+    serviceAccount:
+      create: true
+      automount: true
+      annotations: {}
+      name: ""
+
+    # Pod configuration
+    podAnnotations: {}
+    podLabels:
+      tier: backend
+
+    podSecurityContext: {}
+    securityContext: {}
+
+    # Volumes
+    volumes: []
+    volumeMounts: []
+
+    # Node selection
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
