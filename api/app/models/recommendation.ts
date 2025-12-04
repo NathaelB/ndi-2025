@@ -1,14 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import QuestionOption from '#models/question_option'
 
 export default class Recommendation extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare questionOptionId: number
+  declare questionOptionId: string
 
   @column()
   declare title: string
@@ -33,4 +33,9 @@ export default class Recommendation extends BaseModel {
 
   @belongsTo(() => QuestionOption)
   declare questionOption: BelongsTo<typeof QuestionOption>
+
+  @beforeCreate()
+  static assignUuid(recommendation: Recommendation) {
+    recommendation.id = crypto.randomUUID()
+  }
 }

@@ -5,27 +5,14 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id').notNullable()
-      table
-        .integer('diagnostic_id')
-        .notNullable()
-        .unsigned()
-        .references('id')
-        .inTable('diagnostics')
-        .onDelete('CASCADE')
+      table.uuid('id').primary()
+      table.uuid('diagnostic_id').notNullable().references('id').inTable('diagnostics').onDelete('CASCADE')
+
+      table.uuid('question_id').notNullable().references('id').inTable('questions').onDelete('CASCADE')
 
       table
-        .integer('question_id')
+        .uuid('question_option_id')
         .notNullable()
-        .unsigned()
-        .references('id')
-        .inTable('questions')
-        .onDelete('CASCADE')
-
-      table
-        .integer('question_option_id')
-        .notNullable()
-        .unsigned()
         .references('id')
         .inTable('question_options')
         .onDelete('CASCADE')

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, hasMany, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
 import DiagnosticAnswer from '#models/diagnostic_answer'
@@ -15,10 +15,10 @@ export interface FinalScore {
 
 export default class Diagnostic extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare userId: number
+  declare userId: string
 
   @column({
     prepare: (value: FinalScore | null) => (value ? JSON.stringify(value) : null),
@@ -37,4 +37,9 @@ export default class Diagnostic extends BaseModel {
 
   @hasMany(() => DiagnosticAnswer)
   declare answers: HasMany<typeof DiagnosticAnswer>
+
+  @beforeCreate()
+  static assignUuid(diagnostic: Diagnostic) {
+    diagnostic.id = crypto.randomUUID()
+  }
 }

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Diagnostic from '#models/diagnostic'
 import Question from '#models/question'
@@ -7,16 +7,16 @@ import QuestionOption from '#models/question_option'
 
 export default class DiagnosticAnswer extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare diagnosticId: number
+  declare diagnosticId: string
 
   @column()
-  declare questionId: number
+  declare questionId: string
 
   @column()
-  declare questionOptionId: number
+  declare questionOptionId: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -32,4 +32,9 @@ export default class DiagnosticAnswer extends BaseModel {
 
   @belongsTo(() => QuestionOption)
   declare questionOption: BelongsTo<typeof QuestionOption>
+
+  @beforeCreate()
+  static assignUuid(answer: DiagnosticAnswer) {
+    answer.id = crypto.randomUUID()
+  }
 }

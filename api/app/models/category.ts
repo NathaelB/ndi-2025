@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import Question from '#models/question'
+import { before } from 'node:test'
 
 export default class Category extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
   declare slug: string
@@ -24,4 +25,9 @@ export default class Category extends BaseModel {
 
   @hasMany(() => Question)
   declare questions: HasMany<typeof Question>
+
+  @beforeCreate()
+  static assignUuid(category: Category) {
+    category.id = crypto.randomUUID()
+  }
 }
