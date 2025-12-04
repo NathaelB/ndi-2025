@@ -55,4 +55,4 @@ router
       })
       .prefix('/v1')
   })
-  .prefix('/api')
+  .prefix('/api/v1')
