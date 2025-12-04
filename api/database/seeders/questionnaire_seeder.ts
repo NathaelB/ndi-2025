@@ -3,6 +3,7 @@ import Category from '#models/category'
 import Question from '#models/question'
 import QuestionOption from '#models/question_option'
 import Recommendation from '#models/recommendation'
+import logger from '@adonisjs/core/services/logger'
 
 export default class extends BaseSeeder {
   async run() {
@@ -360,6 +361,6 @@ export default class extends BaseSeeder {
       priority: 12,
     })
 
-    console.log('✅ Seeder terminé : 6 questions créées avec leurs options et recommandations')
+    logger.info('✅ Seeder terminé : 6 questions créées avec leurs options et recommandations')
   }
 }
