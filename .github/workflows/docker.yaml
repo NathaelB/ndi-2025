@@ -42,6 +42,7 @@ jobs:
         target:
           - api
           - webapp
+          - keycloak
     steps:
       - name: checkout
         uses: actions/checkout@v5

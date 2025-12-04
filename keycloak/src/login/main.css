@@ -1,0 +1,435 @@
+@import "tailwindcss";
+
+/* ===== Reset et base ===== */
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+}
+
+/* ===== Page de login complète ===== */
+.kc-login-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Logo du realm en haut à gauche */
+.realm-logo {
+    position: absolute;
+    top: 32px;
+    left: auto;
+    right: auto;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #202124;
+    letter-spacing: 2px;
+}
+
+/* Container principal */
+.kc-login-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    position: relative;
+}
+
+/* Card blanche qui contient tout */
+.kc-login-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Sélecteur de langue */
+.language-selector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.language-selector select {
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    background-color: white;
+    color: #5f6368;
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%235f6368" d="M6 9L1 4h10z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.language-selector select:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+/* Card noire du formulaire */
+.login-form-card {
+    background-color: #2d2e30;
+    border: 1px solid #3c4043;
+    border-radius: 8px;
+    padding: 48px 40px 36px;
+
+    width: 100%;
+    margin-top: 40px;
+}
+
+/* Logo / Nom du realm dans la card */
+.realm-logo-card {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: #e8eaed;
+    margin: 0 0 16px 0;
+    text-align: left;
+    width: 100%;
+}
+
+/* Titre */
+.login-title {
+    font-size: 24px;
+    font-weight: 400;
+    color: #e8eaed;
+    margin: 0 0 8px 0;
+    text-align: left;
+    width: 100%;
+}
+
+/* Sous-titre */
+.login-subtitle {
+    font-size: 1rem;
+    color: #9aa0a6;
+    margin-top: 8px;
+    margin-bottom: 32px;
+    line-height: 1.5;
+    text-align: left;
+    width: 100%;
+}
+
+/* ===== Social Providers ===== */
+.social-providers-section {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.social-providers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.social-provider-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border: 1px solid #5f6368;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #e8eaed;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.social-provider-button:hover {
+    background-color: rgba(232, 234, 237, 0.08);
+    border-color: #8ab4f8;
+}
+
+.social-provider-button:active {
+    background-color: rgba(232, 234, 237, 0.12);
+}
+
+.social-provider-button i {
+    font-size: 1.25rem;
+}
+
+/* Divider "ou" */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #5f6368;
+}
+
+.divider span {
+    padding: 0 16px;
+    color: #9aa0a6;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+/* ===== Formulaire ===== */
+#kc-form-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+/* ===== Groupes de formulaire ===== */
+.kcFormGroupClass {
+    margin-bottom: 24px;
+    position: relative;
+}
+
+/* ===== Labels ===== */
+.kcLabelClass {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #9aa0a6;
+    margin-bottom: 8px;
+    letter-spacing: 0.25px;
+}
+
+/* ===== Inputs ===== */
+.kcInputClass {
+    width: 100%;
+    padding: 13px 15px;
+    font-size: 1rem;
+    color: #e8eaed;
+    background-color: #3c4043;
+    border: 1px solid #5f6368;
+    border-radius: 4px;
+    transition: all 0.15s ease-in-out;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.kcInputClass::placeholder {
+    color: #5f6368;
+}
+
+.kcInputClass:hover {
+    border-color: #8ab4f8;
+    background-color: #3c4043;
+}
+
+.kcInputClass:focus {
+    outline: none;
+    border: 2px solid #8ab4f8;
+    padding: 12px 14px;
+    background-color: #3c4043;
+}
+
+.kcInputClass[aria-invalid="true"] {
+    border-color: #f28b82;
+}
+
+.kcInputClass[aria-invalid="true"]:focus {
+    border: 2px solid #f28b82;
+}
+
+/* Lien "Adresse e-mail oubliée ?" */
+.forgot-email-link {
+    margin-top: 8px;
+}
+
+.forgot-email-link a {
+    font-size: 0.875rem;
+    color: #8ab4f8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-email-link a:hover {
+    text-decoration: underline;
+}
+
+/* Remember Me Section */
+.remember-me-section {
+    margin-bottom: 24px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.875rem;
+    color: #9aa0a6;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #9aa0a6;
+    border-radius: 2px;
+    cursor: pointer;
+    accent-color: #8ab4f8;
+    margin: 0;
+    background-color: #3c4043;
+}
+
+.checkbox-label input[type="checkbox"]:focus {
+    outline: 2px solid #8ab4f8;
+    outline-offset: 2px;
+}
+
+/* ===== Messages d'alerte ===== */
+.kcAlertClass {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    width: 100%;
+}
+
+.kcAlertErrorClass {
+    background-color: #5f2120;
+    color: #f28b82;
+    border-left: 4px solid #f28b82;
+}
+
+.kcAlertSuccessClass {
+    background-color: #0d3a1f;
+    color: #81c995;
+    border-left: 4px solid #81c995;
+}
+
+.kcAlertWarningClass {
+    background-color: #3d2c00;
+    color: #fdd663;
+    border-left: 4px solid #fdd663;
+}
+
+.kcAlertInfoClass {
+    background-color: #1a3952;
+    color: #8ab4f8;
+    border-left: 4px solid #8ab4f8;
+}
+
+/* ===== Boutons ===== */
+.kcButtonClass {
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.25px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    text-transform: none;
+    font-family: inherit;
+}
+
+.kcButtonClass:focus {
+    outline: none;
+}
+
+.kcButtonPrimaryClass {
+    background-color: #8ab4f8;
+    color: #202124;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+.kcButtonPrimaryClass:hover {
+    background-color: #aecbfa;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
+}
+
+.kcButtonPrimaryClass:active {
+    background-color: #669df6;
+}
+
+.kcButtonLargeClass {
+    padding: 12px 24px;
+    font-size: 0.875rem;
+}
+
+.kcButtonClass:disabled {
+    background-color: #3c4043;
+    color: #5f6368;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ===== Actions du formulaire ===== */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 26px;
+}
+
+.create-account-link {
+    color: #8ab4f8;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 10px 24px;
+}
+
+.create-account-link:hover {
+    text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .kc-login-container {
+        padding: 20px;
+    }
+
+    .login-form-card {
+        padding: 32px 24px;
+    }
+
+    .realm-logo {
+        top: 16px;
+        left: auto;
+        right: auto;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .create-account-link {
+        text-align: center;
+    }
+
+    .social-providers-list {
+        gap: 8px;
+    }
+
+    .social-provider-button {
+        padding: 10px 16px;
+        font-size: 0.8125rem;
+    }
+}

@@ -79,3 +79,43 @@ COPY webapp/nginx.conf /etc/nginx/conf.d/default.conf
 COPY webapp/docker-entrypoint.sh /docker-entrypoint.d/docker-entrypoint.sh
 
 RUN chmod +x /docker-entrypoint.d/docker-entrypoint.sh
+
+# Keycloak theme build stage
+FROM base AS keycloak-theme-build
+WORKDIR /app
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+RUN apk add --no-cache \
+    openjdk17-jre \
+    maven
+
+COPY keycloak/package.json keycloak/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY keycloak/ .
+RUN pnpm run build-keycloak-theme
+
+# Keycloak production stage
+FROM quay.io/keycloak/keycloak:26.4.7 AS keycloak
+
+# Copy the custom theme JAR
+COPY --from=keycloak-theme-build /app/dist_keycloak/*.jar /opt/keycloak/providers/
+
+# Set Keycloak to production mode
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+ENV KC_HTTP_ENABLED=true
+ENV KC_HOSTNAME_STRICT=false
+ENV KC_PROXY=edge
+
+# Build Keycloak with the custom theme
+RUN /opt/keycloak/bin/kc.sh build
+
+EXPOSE 8080
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start"]
