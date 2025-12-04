@@ -10,5 +10,60 @@ services:
     ports:
       - "5454:5432"
 
+  api:
+    build:
+      context: .
+      target: api
+    environment:
+      - PORT=6000
+      - APP_KEY=Y7e3aIyEZNiHFB53NaLuJsQWvN-JufnJ
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=ndi
+    ports:
+      - "6000:6000"
+    depends_on:
+      - postgres
+      - migrate
+    profiles:
+      - build
+
+  webapp:
+    build:
+      context: .
+      target: webapp
+    ports:
+      - "5173:80"
+    environment:
+      - API_URL=http://localhost:6000
+    profiles:
+      - build
+
+  migrate:
+    build:
+      context: .
+      target: api
+    environment:
+      - PORT=6000
+      - APP_KEY=Y7e3aIyEZNiHFB53NaLuJsQWvN-JufnJ
+      - HOST=127.0.0.1
+      - LOG_LEVEL=info
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=ndi
+    depends_on:
+      - postgres
+    command: ["node", "ace", "migration:run"]
+    profiles:
+      - build
+
 volumes:
   pgdata:
