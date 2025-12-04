@@ -1,9 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import DiagnosticsService from '#services/diagnostics_service'
 import { createDiagnosticValidator, updateFinalScoreValidator } from '#validators/diagnostic'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class DiagnosticsController {
-  private diagnosticsService = new DiagnosticsService()
+  constructor(protected diagnosticsService: DiagnosticsService) {}
 
   /**
    * GET /diagnostics

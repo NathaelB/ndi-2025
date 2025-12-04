@@ -5,9 +5,11 @@ import {
   updateAnswerValidator,
   batchAnswersValidator,
 } from '#validators/diagnostic_answer'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class DiagnosticAnswersController {
-  private answersService = new DiagnosticAnswersService()
+  constructor(protected answersService: DiagnosticAnswersService) {}
 
   /**
    * GET /diagnostics/:diagnosticId/answers

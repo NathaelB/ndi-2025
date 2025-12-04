@@ -1,8 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import QuestionsService from '#services/questions_service'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class QuestionsController {
-  private questionsService = new QuestionsService()
+  constructor(protected questionsService: QuestionsService) {}
 
   /**
    * GET /questions
