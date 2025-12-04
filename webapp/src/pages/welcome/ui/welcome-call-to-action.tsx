@@ -1,8 +1,15 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowRight, Github, BookOpen } from 'lucide-react'
+import { ArrowRight, Github, BookOpen, Target } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 export function WelcomeCallToAction() {
+  const navigate = useNavigate()
+
+  const handleStartDiagnostic = () => {
+    navigate({ to: '/diagnostic' })
+  }
+
   return (
     <section className="py-20 bg-gradient-to-t from-blue-50 to-white dark:from-gray-950 dark:to-gray-900">
       <div className="container mx-auto px-4">
@@ -22,8 +29,13 @@ export function WelcomeCallToAction() {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" className="gap-2 text-base">
-                  Commencer maintenant
+                <Button
+                  size="lg"
+                  onClick={handleStartDiagnostic}
+                  className="gap-2 text-base"
+                >
+                  <Target className="w-5 h-5" />
+                  Faire le diagnostic
                   <ArrowRight className="w-5 h-5" />
                 </Button>
 
