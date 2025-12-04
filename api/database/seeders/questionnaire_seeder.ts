@@ -263,7 +263,7 @@ export default class extends BaseSeeder {
       },
     ])
 
-    // 6. Question 5 : Écologie & Réemploi
+    // 5. Question 5 : Écologie & Réemploi
     const q5 = await Question.create({
       categoryId: durability.id,
       content: "Quelle est la politique d'achat de nouveau matériel informatique ?",
@@ -311,6 +311,55 @@ export default class extends BaseSeeder {
       priority: 15,
     })
 
-    console.log('✅ Seeder terminé : 5 questions créées avec leurs options et recommandations')
+    // 6. Question 6 : Sobriété Numérique & Usage
+    const q6 = await Question.create({
+      categoryId: sobriety.id,
+      content: 'Comment gérez-vous la consommation énergétique des équipements informatiques ?',
+      order: 6,
+      isActive: true,
+    })
+
+    const q6Options = await QuestionOption.createMany([
+      {
+        questionId: q6.id,
+        label: 'Pas de politique spécifique, les équipements restent allumés en permanence',
+        value: 'always_on',
+        impactScores: {
+          sobriety: -25,
+          durability: -10,
+        },
+      },
+      {
+        questionId: q6.id,
+        label: 'Extinction manuelle encouragée, mais non systématique',
+        value: 'manual_shutdown',
+        impactScores: {
+          sobriety: 5,
+          durability: 0,
+        },
+      },
+      {
+        questionId: q6.id,
+        label:
+          'Gestion automatique (extinction programmée, mise en veille, monitoring de la consommation)',
+        value: 'automated_management',
+        impactScores: {
+          sobriety: 20,
+          durability: 10,
+        },
+      },
+    ])
+
+    await Recommendation.create({
+      questionOptionId: q6Options[0].id,
+      title: 'Gaspillage énergétique important',
+      description:
+        "Un ordinateur allumé 24/7 consomme inutilement et accélère son vieillissement. Mettez en place une politique d'extinction automatique pour réduire votre facture énergétique et votre empreinte carbone.",
+      actionLabel: 'Découvrir les bonnes pratiques de sobriété',
+      actionUrl: 'https://nird.forge.apps.education.fr/',
+      priority: 12,
+    })
+
+    console.log('✅ Seeder terminé : 6 questions créées avec leurs options et recommandations')
   }
 }
