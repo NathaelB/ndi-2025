@@ -14,8 +14,10 @@ export default class DiagnosticAnswersController {
    * GET /diagnostics/:diagnosticId/answers
    * Récupère toutes les réponses d'un diagnostic
    */
-  async index({ params, response }: HttpContext) {
+  async index({ params, request, response }: HttpContext) {
     const diagnostic = await Diagnostic.findOrFail(params.diagnosticId)
+    const page = request.input('page', 1)
+    const limit = request.input('limit', 50)
 
     const answers = await DiagnosticAnswer.query()
       .where('diagnosticId', diagnostic.id)
@@ -24,9 +26,11 @@ export default class DiagnosticAnswersController {
       })
       .preload('questionOption')
       .orderBy('createdAt', 'asc')
+      .paginate(page, limit)
 
     return response.ok({
-      data: answers,
+      data: answers.all(),
+      meta: answers.getMeta(),
     })
   }
 
