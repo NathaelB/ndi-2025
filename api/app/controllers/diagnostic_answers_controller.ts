@@ -6,6 +6,9 @@ import {
   batchAnswersValidator,
 } from '#validators/diagnostic_answer'
 import { inject } from '@adonisjs/core'
+import { ApiOperation, ApiBody, ApiResponse } from '@foadonis/openapi/decorators'
+import DiagnosticAnswer from '#models/diagnostic_answer'
+import { MessageResponse } from '#responses/message_response'
 
 @inject()
 export default class DiagnosticAnswersController {
@@ -15,6 +18,8 @@ export default class DiagnosticAnswersController {
    * GET /diagnostics/:diagnosticId/answers
    * Récupère toutes les réponses d'un diagnostic
    */
+  @ApiOperation({ summary: 'Get all answers for a diagnostic' })
+  @ApiResponse({ type: [DiagnosticAnswer] })
   async index({ params, request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 50)
@@ -35,6 +40,9 @@ export default class DiagnosticAnswersController {
    * POST /diagnostics/:diagnosticId/answers
    * Crée une nouvelle réponse pour un diagnostic
    */
+  @ApiOperation({ summary: 'Create or update an answer for a diagnostic' })
+  @ApiBody({ type: () => createAnswerValidator })
+  @ApiResponse({ type: DiagnosticAnswer })
   async store({ params, request, response }: HttpContext) {
     const payload = await request.validateUsing(createAnswerValidator)
 
@@ -60,6 +68,8 @@ export default class DiagnosticAnswersController {
    * GET /answers/:id
    * Récupère une réponse spécifique
    */
+  @ApiOperation({ summary: 'Get a specific answer by ID' })
+  @ApiResponse({ type: DiagnosticAnswer })
   async show({ params, response }: HttpContext) {
     const answer = await this.answersService.getAnswerById(params.id)
 
@@ -72,6 +82,9 @@ export default class DiagnosticAnswersController {
    * PUT/PATCH /answers/:id
    * Met à jour une réponse existante
    */
+  @ApiOperation({ summary: 'Update an existing answer' })
+  @ApiBody({ type: () => updateAnswerValidator })
+  @ApiResponse({ type: DiagnosticAnswer })
   async update({ params, request, response }: HttpContext) {
     const payload = await request.validateUsing(updateAnswerValidator)
     const answer = await this.answersService.updateAnswer(params.id, payload)
@@ -86,6 +99,8 @@ export default class DiagnosticAnswersController {
    * DELETE /answers/:id
    * Supprime une réponse
    */
+  @ApiOperation({ summary: 'Delete an answer' })
+  @ApiResponse({ type: MessageResponse })
   async destroy({ params, response }: HttpContext) {
     await this.answersService.deleteAnswer(params.id)
 
@@ -98,6 +113,9 @@ export default class DiagnosticAnswersController {
    * POST /diagnostics/:diagnosticId/answers/batch
    * Crée ou met à jour plusieurs réponses en une seule requête
    */
+  @ApiOperation({ summary: 'Batch create or update multiple answers' })
+  @ApiBody({ type: () => batchAnswersValidator })
+  @ApiResponse({ type: [DiagnosticAnswer] })
   async batchStore({ params, request, response }: HttpContext) {
     const payload = await request.validateUsing(batchAnswersValidator)
     const savedAnswers = await this.answersService.batchCreateOrUpdateAnswers(
