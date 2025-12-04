@@ -8,7 +8,10 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import openapi from '@foadonis/openapi/services/main'
 const HealthCheckController = () => import('#controllers/health_checks_controller')
+
+openapi.registerRoutes()
 
 router.get('/', async () => {
   return {
