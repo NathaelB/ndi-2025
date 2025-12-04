@@ -15,7 +15,7 @@ services:
       context: .
       target: api
     environment:
-      - PORT=6000
+      - PORT=3333
       - APP_KEY=Y7e3aIyEZNiHFB53NaLuJsQWvN-JufnJ
       - HOST=0.0.0.0
       - LOG_LEVEL=info
@@ -26,7 +26,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_DATABASE=ndi
     ports:
-      - "6000:6000"
+      - "3333:3333"
     depends_on:
       - postgres
       - migrate
@@ -40,7 +40,7 @@ services:
     ports:
       - "5173:80"
     environment:
-      - API_URL=http://localhost:6000
+      - API_URL=http://localhost:3333
     profiles:
       - build
 
