@@ -51,7 +51,7 @@ export function useSaveDiagnostic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (_data: {
       answers: DiagnosticAnswers;
       result: DiagnosticResult;
     }) => {
