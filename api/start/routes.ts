@@ -8,9 +8,17 @@
 */
 
 import router from '@adonisjs/core/services/router'
+const HealthCheckController = () => import('#controllers/health_checks_controller')
 
 router.get('/', async () => {
   return {
     hello: 'world',
   }
 })
+
+router
+  .group(() => {
+    router.get('/live', [HealthCheckController, 'live'])
+    router.get('/ready', [HealthCheckController, 'ready'])
+  })
+  .prefix('/api/health')
