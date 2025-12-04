@@ -12,6 +12,7 @@ import openapi from '@foadonis/openapi/services/main'
 const HealthCheckController = () => import('#controllers/health_checks_controller')
 const DiagnosticAnswersController = () => import('#controllers/diagnostic_answers_controller')
 const QuestionsController = () => import('#controllers/questions_controller')
+const DiagnosticsController = () => import('#controllers/diagnostics_controller')
 
 openapi.registerRoutes()
 
@@ -37,6 +38,18 @@ router
         router.get('/questions/:id', [QuestionsController, 'show'])
         router.get('/categories', [QuestionsController, 'categoriesWithQuestions'])
         router.get('/categories/:categoryId/questions', [QuestionsController, 'byCategory'])
+
+        // Routes pour les diagnostics
+        router.get('/diagnostics', [DiagnosticsController, 'index'])
+        router.post('/diagnostics', [DiagnosticsController, 'store'])
+        router.get('/diagnostics/:id', [DiagnosticsController, 'show'])
+        router.delete('/diagnostics/:id', [DiagnosticsController, 'destroy'])
+        router.post('/diagnostics/:id/calculate-score', [DiagnosticsController, 'calculateScore'])
+        router.put('/diagnostics/:id/finalize', [DiagnosticsController, 'finalize'])
+        router.patch('/diagnostics/:id/finalize', [DiagnosticsController, 'finalize'])
+
+        // Routes pour les diagnostics par utilisateur
+        router.get('/users/:userId/diagnostics', [DiagnosticsController, 'byUser'])
 
         // Récupérer toutes les réponses d'un diagnostic
         router.get('/diagnostics/:diagnosticId/answers', [DiagnosticAnswersController, 'index'])
