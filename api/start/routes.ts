@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import openapi from '@foadonis/openapi/services/main'
 const HealthCheckController = () => import('#controllers/health_checks_controller')
 const DiagnosticAnswersController = () => import('#controllers/diagnostic_answers_controller')
+const QuestionsController = () => import('#controllers/questions_controller')
 
 openapi.registerRoutes()
 
@@ -31,6 +32,12 @@ router
 
     router
       .group(() => {
+        // Routes pour les questions et catégories (lecture seule, sans scores)
+        router.get('/questions', [QuestionsController, 'index'])
+        router.get('/questions/:id', [QuestionsController, 'show'])
+        router.get('/categories', [QuestionsController, 'categoriesWithQuestions'])
+        router.get('/categories/:categoryId/questions', [QuestionsController, 'byCategory'])
+
         // Récupérer toutes les réponses d'un diagnostic
         router.get('/diagnostics/:diagnosticId/answers', [DiagnosticAnswersController, 'index'])
 
