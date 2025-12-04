@@ -1,8 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import DiagnosticAnswer from '#models/diagnostic_answer'
-import Diagnostic from '#models/diagnostic'
-import Question from '#models/question'
-import QuestionOption from '#models/question_option'
+import DiagnosticAnswersService from '#services/diagnostic_answers_service'
 import {
   createAnswerValidator,
   updateAnswerValidator,
@@ -10,23 +7,21 @@ import {
 } from '#validators/diagnostic_answer'
 
 export default class DiagnosticAnswersController {
+  private answersService = new DiagnosticAnswersService()
+
   /**
    * GET /diagnostics/:diagnosticId/answers
    * Récupère toutes les réponses d'un diagnostic
    */
   async index({ params, request, response }: HttpContext) {
-    const diagnostic = await Diagnostic.findOrFail(params.diagnosticId)
     const page = request.input('page', 1)
     const limit = request.input('limit', 50)
 
-    const answers = await DiagnosticAnswer.query()
-      .where('diagnosticId', diagnostic.id)
-      .preload('question', (query) => {
-        query.preload('category')
-      })
-      .preload('questionOption')
-      .orderBy('createdAt', 'asc')
-      .paginate(page, limit)
+    const answers = await this.answersService.getAnswersByDiagnostic(
+      params.diagnosticId,
+      page,
+      limit
+    )
 
     return response.ok({
       data: answers.all(),
@@ -41,58 +36,17 @@ export default class DiagnosticAnswersController {
   async store({ params, request, response }: HttpContext) {
     const payload = await request.validateUsing(createAnswerValidator)
 
-    // Vérifier que le diagnostic existe et correspond au paramètre
-    const diagnostic = await Diagnostic.findOrFail(params.diagnosticId)
-    if (diagnostic.id !== payload.diagnosticId) {
-      return response.badRequest({
-        error: 'Diagnostic ID mismatch',
-      })
-    }
+    const { answer, isUpdate } = await this.answersService.createOrUpdateAnswer(
+      params.diagnosticId,
+      payload
+    )
 
-    // Vérifier que la question existe
-    const question = await Question.findOrFail(payload.questionId)
-
-    // Vérifier que l'option de question existe et appartient à la question
-    const questionOption = await QuestionOption.findOrFail(payload.questionOptionId)
-    if (questionOption.questionId !== question.id) {
-      return response.badRequest({
-        error: 'Question option does not belong to the specified question',
-      })
-    }
-
-    // Vérifier si une réponse existe déjà pour cette question dans ce diagnostic
-    const existingAnswer = await DiagnosticAnswer.query()
-      .where('diagnosticId', diagnostic.id)
-      .where('questionId', question.id)
-      .first()
-
-    if (existingAnswer) {
-      // Mettre à jour la réponse existante
-      existingAnswer.questionOptionId = questionOption.id
-      await existingAnswer.save()
-
-      await existingAnswer.load('question', (query) => {
-        query.preload('category')
-      })
-      await existingAnswer.load('questionOption')
-
+    if (isUpdate) {
       return response.ok({
-        data: existingAnswer,
+        data: answer,
         message: 'Answer updated successfully',
       })
     }
-
-    // Créer une nouvelle réponse
-    const answer = await DiagnosticAnswer.create({
-      diagnosticId: diagnostic.id,
-      questionId: question.id,
-      questionOptionId: questionOption.id,
-    })
-
-    await answer.load('question', (query) => {
-      query.preload('category')
-    })
-    await answer.load('questionOption')
 
     return response.created({
       data: answer,
@@ -105,14 +59,7 @@ export default class DiagnosticAnswersController {
    * Récupère une réponse spécifique
    */
   async show({ params, response }: HttpContext) {
-    const answer = await DiagnosticAnswer.query()
-      .where('id', params.id)
-      .preload('question', (query) => {
-        query.preload('category')
-      })
-      .preload('questionOption')
-      .preload('diagnostic')
-      .firstOrFail()
+    const answer = await this.answersService.getAnswerById(params.id)
 
     return response.ok({
       data: answer,
@@ -124,24 +71,8 @@ export default class DiagnosticAnswersController {
    * Met à jour une réponse existante
    */
   async update({ params, request, response }: HttpContext) {
-    const answer = await DiagnosticAnswer.findOrFail(params.id)
     const payload = await request.validateUsing(updateAnswerValidator)
-
-    // Vérifier que l'option appartient à la même question
-    const questionOption = await QuestionOption.findOrFail(payload.questionOptionId)
-    if (questionOption.questionId !== answer.questionId) {
-      return response.badRequest({
-        error: 'Question option does not belong to the same question',
-      })
-    }
-
-    answer.questionOptionId = questionOption.id
-    await answer.save()
-
-    await answer.load('question', (query) => {
-      query.preload('category')
-    })
-    await answer.load('questionOption')
+    const answer = await this.answersService.updateAnswer(params.id, payload)
 
     return response.ok({
       data: answer,
@@ -154,8 +85,7 @@ export default class DiagnosticAnswersController {
    * Supprime une réponse
    */
   async destroy({ params, response }: HttpContext) {
-    const answer = await DiagnosticAnswer.findOrFail(params.id)
-    await answer.delete()
+    await this.answersService.deleteAnswer(params.id)
 
     return response.ok({
       message: 'Answer deleted successfully',
@@ -167,50 +97,11 @@ export default class DiagnosticAnswersController {
    * Crée ou met à jour plusieurs réponses en une seule requête
    */
   async batchStore({ params, request, response }: HttpContext) {
-    const diagnostic = await Diagnostic.findOrFail(params.diagnosticId)
     const payload = await request.validateUsing(batchAnswersValidator)
-
-    const savedAnswers = []
-
-    for (const answerData of payload.answers) {
-      // Vérifier que la question existe
-      const question = await Question.findOrFail(answerData.questionId)
-
-      // Vérifier que l'option appartient à la question
-      const questionOption = await QuestionOption.findOrFail(answerData.questionOptionId)
-      if (questionOption.questionId !== question.id) {
-        return response.badRequest({
-          error: `Question option ${questionOption.id} does not belong to question ${question.id}`,
-        })
-      }
-
-      // Vérifier si une réponse existe déjà
-      const existingAnswer = await DiagnosticAnswer.query()
-        .where('diagnosticId', diagnostic.id)
-        .where('questionId', question.id)
-        .first()
-
-      if (existingAnswer) {
-        existingAnswer.questionOptionId = questionOption.id
-        await existingAnswer.save()
-        savedAnswers.push(existingAnswer)
-      } else {
-        const newAnswer = await DiagnosticAnswer.create({
-          diagnosticId: diagnostic.id,
-          questionId: question.id,
-          questionOptionId: questionOption.id,
-        })
-        savedAnswers.push(newAnswer)
-      }
-    }
-
-    // Charger les relations pour toutes les réponses
-    for (const answer of savedAnswers) {
-      await answer.load('question', (query) => {
-        query.preload('category')
-      })
-      await answer.load('questionOption')
-    }
+    const savedAnswers = await this.answersService.batchCreateOrUpdateAnswers(
+      params.diagnosticId,
+      payload.answers
+    )
 
     return response.ok({
       data: savedAnswers,

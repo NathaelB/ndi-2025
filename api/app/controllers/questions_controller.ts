@@ -1,8 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Question from '#models/question'
-import Category from '#models/category'
+import QuestionsService from '#services/questions_service'
 
 export default class QuestionsController {
+  private questionsService = new QuestionsService()
+
   /**
    * GET /questions
    * Récupère toutes les questions actives avec leurs options (sans les scores)
@@ -11,31 +12,8 @@ export default class QuestionsController {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
 
-    const questions = await Question.query()
-      .where('isActive', true)
-      .preload('category')
-      .preload('options')
-      .orderBy('order', 'asc')
-      .paginate(page, limit)
-
-    // Formatter les données pour exclure les scores
-    const formattedQuestions = questions.all().map((question) => ({
-      id: question.id,
-      content: question.content,
-      order: question.order,
-      category: {
-        id: question.category.id,
-        slug: question.category.slug,
-        label: question.category.label,
-        color: question.category.color,
-      },
-      options: question.options.map((option) => ({
-        id: option.id,
-        label: option.label,
-        value: option.value,
-        // On n'inclut pas impactScores pour éviter la triche
-      })),
-    }))
+    const questions = await this.questionsService.getAllQuestions(page, limit)
+    const formattedQuestions = this.questionsService.formatQuestions(questions.all())
 
     return response.ok({
       data: formattedQuestions,
@@ -48,31 +26,8 @@ export default class QuestionsController {
    * Récupère une question spécifique avec ses options (sans les scores)
    */
   async show({ params, response }: HttpContext) {
-    const question = await Question.query()
-      .where('id', params.id)
-      .where('isActive', true)
-      .preload('category')
-      .preload('options')
-      .firstOrFail()
-
-    // Formatter les données pour exclure les scores
-    const formattedQuestion = {
-      id: question.id,
-      content: question.content,
-      order: question.order,
-      category: {
-        id: question.category.id,
-        slug: question.category.slug,
-        label: question.category.label,
-        color: question.category.color,
-      },
-      options: question.options.map((option) => ({
-        id: option.id,
-        label: option.label,
-        value: option.value,
-        // On n'inclut pas impactScores pour éviter la triche
-      })),
-    }
+    const question = await this.questionsService.getQuestionById(params.id)
+    const formattedQuestion = this.questionsService.formatQuestion(question)
 
     return response.ok({
       data: formattedQuestion,
@@ -84,18 +39,15 @@ export default class QuestionsController {
    * Récupère toutes les questions d'une catégorie (sans les scores)
    */
   async byCategory({ params, request, response }: HttpContext) {
-    const category = await Category.findOrFail(params.categoryId)
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
 
-    const questions = await Question.query()
-      .where('categoryId', category.id)
-      .where('isActive', true)
-      .preload('options')
-      .orderBy('order', 'asc')
-      .paginate(page, limit)
+    const { category, questions } = await this.questionsService.getQuestionsByCategory(
+      params.categoryId,
+      page,
+      limit
+    )
 
-    // Formatter les données pour exclure les scores
     const formattedQuestions = questions.all().map((question) => ({
       id: question.id,
       content: question.content,
@@ -104,7 +56,6 @@ export default class QuestionsController {
         id: option.id,
         label: option.label,
         value: option.value,
-        // On n'inclut pas impactScores pour éviter la triche
       })),
     }))
 
@@ -130,31 +81,10 @@ export default class QuestionsController {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
 
-    const categories = await Category.query()
-      .preload('questions', (query) => {
-        query.where('isActive', true).preload('options').orderBy('order', 'asc')
-      })
-      .orderBy('label', 'asc')
-      .paginate(page, limit)
-
-    // Formatter les données pour exclure les scores
-    const formattedCategories = categories.all().map((category) => ({
-      id: category.id,
-      slug: category.slug,
-      label: category.label,
-      color: category.color,
-      questions: category.questions.map((question) => ({
-        id: question.id,
-        content: question.content,
-        order: question.order,
-        options: question.options.map((option) => ({
-          id: option.id,
-          label: option.label,
-          value: option.value,
-          // On n'inclut pas impactScores pour éviter la triche
-        })),
-      })),
-    }))
+    const categories = await this.questionsService.getCategoriesWithQuestions(page, limit)
+    const formattedCategories = categories
+      .all()
+      .map((category) => this.questionsService.formatCategory(category))
 
     return response.ok({
       data: formattedCategories,
