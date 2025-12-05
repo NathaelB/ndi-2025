@@ -214,7 +214,7 @@ export default function AnimatedSphere({ score = 50 }: AnimatedSphereProps) {
         const z = originalPositions[i3 + 2];
 
         const vertexPos = new THREE.Vector3(x, y, z);
-        const length = vertexPos.length();
+        //const length = vertexPos.length();
         const direction = vertexPos.clone().normalize();
 
         // Calculer l'influence de chaque spike (forme de virus organique)
