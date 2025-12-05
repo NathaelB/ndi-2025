@@ -331,7 +331,7 @@ export default function AnimatedSphere() {
     const mesh = new THREE.Mesh(geometry, shaderMaterial);
     scene.add(mesh);
 
-    // === DISQUE D'ACCRÉTION TROU NOIR (discret) ===
+    // === DISQUE D'ACCRÉTION TROU NOIR PLASMA LUMINEUX ===
     const discGeometry = new THREE.RingGeometry(2.5, 4.5, 64, 8);
 
     const discVertexShader = `
@@ -354,29 +354,81 @@ export default function AnimatedSphere() {
       varying vec2 vUv;
       varying vec3 vPosition;
 
+      // Noise simple optimisé pour effet plasma
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
+
+        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+      }
+
       void main() {
         // Distance du centre
         float dist = length(vPosition.xy);
-        float normalizedDist = (dist - 2.5) / 2.5;
+        float normalizedDist = (dist - 2.5) / 2.0;
 
-        // Spirale (réduite)
+        // Angle pour rotation
         float angle = atan(vPosition.y, vPosition.x);
-        float spiral = sin(angle * 6.0 - time * 1.5 + dist * 2.5) * 0.5 + 0.5;
 
-        // Turbulence (réduite)
-        float turbulence = sin(dist * 8.0 - time * 2.0) *
-                          cos(angle * 5.0 + time * 1.0) * 0.5 + 0.5;
+        // Rotation circulaire plasma
+        float rotation = time * 0.8;
+        vec2 plasmaCoord = vec2(
+          cos(angle + rotation) * dist,
+          sin(angle + rotation) * dist
+        );
 
-        // Couleur gradient (plus doux)
-        vec3 color = mix(colorInner, colorOuter, normalizedDist);
-        color = mix(color, colorInner * 1.3, spiral * 0.25);
-        color += turbulence * 0.1 * chaos;
+        // Multi-layer plasma effect (optimisé)
+        float plasma1 = noise(plasmaCoord * 1.5 + time * 0.3);
+        float plasma2 = noise(plasmaCoord * 2.5 - time * 0.2);
+        float plasma3 = noise(plasmaCoord * 0.8 + time * 0.4);
 
-        // Opacité selon distance et chaos (beaucoup réduite pour bon score)
-        float alpha = (1.0 - normalizedDist) * (0.15 + chaos * 0.4);
-        alpha *= smoothstep(0.0, 0.2, normalizedDist); // Fade au centre
+        float plasma = (plasma1 + plasma2 * 0.6 + plasma3 * 0.4) / 2.0;
 
-        gl_FragColor = vec4(color, alpha);
+        // Spirales énergétiques
+        float spiral1 = sin(angle * 8.0 - time * 2.0 + dist * 4.0);
+        float spiral2 = sin(angle * 5.0 + time * 1.5 - dist * 3.0);
+        float spirals = (spiral1 + spiral2) * 0.5 + 0.5;
+
+        // Ondes circulaires
+        float waves = sin(dist * 12.0 - time * 3.0) * 0.5 + 0.5;
+
+        // Mix plasma avec spirales
+        float energy = mix(plasma, spirals, 0.4);
+        energy = mix(energy, waves, 0.2);
+
+        // Couleurs plasma lumineux
+        vec3 plasmaColor = mix(colorOuter, colorInner, energy);
+
+        // Zones lumineuses (filaments)
+        float filaments = smoothstep(0.6, 0.9, energy);
+        plasmaColor += colorInner * filaments * (0.5 + chaos * 0.8);
+
+        // Gradient radial
+        vec3 finalColor = mix(plasmaColor, colorInner * 1.4, smoothstep(0.8, 0.3, normalizedDist));
+
+        // Augmenter luminosité globale
+        finalColor *= (1.2 + chaos * 0.5);
+
+        // Opacité avec dégradé
+        float alpha = (1.0 - normalizedDist) * (0.25 + chaos * 0.45);
+        alpha *= smoothstep(0.0, 0.15, normalizedDist); // Fade au centre
+        alpha *= smoothstep(1.0, 0.7, normalizedDist); // Fade externe
+
+        // Pulsation lumineuse
+        float pulse = sin(time * 2.0) * 0.1 + 0.9;
+        alpha *= pulse;
+
+        gl_FragColor = vec4(finalColor, alpha);
       }
     `;
 
@@ -384,8 +436,8 @@ export default function AnimatedSphere() {
       uniforms: {
         time: { value: 0 },
         chaos: { value: 0.5 },
-        colorInner: { value: new THREE.Color(0xff4400) },
-        colorOuter: { value: new THREE.Color(0x440000) },
+        colorInner: { value: new THREE.Color(0xff6633) },
+        colorOuter: { value: new THREE.Color(0x661100) },
       },
       vertexShader: discVertexShader,
       fragmentShader: discFragmentShader,
@@ -570,8 +622,8 @@ export default function AnimatedSphere() {
         0.015,
       );
 
-      // Rotation disque (très lente si bon score)
-      accretionDisc.rotation.z += 0.0005 + chaosLevel * 0.0025;
+      // Rotation disque plasma (fluide)
+      accretionDisc.rotation.z += 0.001 + chaosLevel * 0.003;
 
       // Update halo
       haloMaterial.uniforms.time.value = time;
