@@ -160,10 +160,13 @@ export default function AnimatedSphere() {
         vPosition = position;
         vec3 pos = position;
 
-        // Déformations uniquement si chaos > seuil
+        // Déformations avec transition ultra-douce
         float displacement = 0.0;
 
-        if (chaos > 0.15) {
+        // Facteur de transition smooth (0 = paisible, 1 = chaotique)
+        float transitionFactor = smoothstep(0.1, 0.3, chaos);
+
+        if (chaos > 0.1) {
           // Déformation chaotique pour score bas, nulle pour bon score
           float noiseScale = 1.0 + chaos * 2.0;
           float noiseFreq = time * (0.2 + chaos * 0.8);
@@ -181,12 +184,15 @@ export default function AnimatedSphere() {
                          abs(sin(pos.z * 8.0 + time * 0.6));
           spikes = pow(spikes, 3.0 - chaos * 2.0);
 
-          // Displacement total
+          // Displacement total avec transition douce
           displacement = totalNoise * (0.03 + chaos * 0.5) + spikes * spikeIntensity;
 
           // Pulsation globale
           float pulse = sin(time * (0.3 + chaos * 1.5)) * (0.01 + chaos * 0.12);
           displacement += pulse;
+
+          // Appliquer le facteur de transition smooth
+          displacement *= transitionFactor;
         }
 
         // Influence souris (très légère)
@@ -235,32 +241,38 @@ export default function AnimatedSphere() {
 
         vec3 waveColor = baseColor;
 
-        // Vagues énergétiques uniquement si chaos > seuil
-        if (chaos > 0.15) {
+        // Vagues énergétiques avec transition douce
+        if (chaos > 0.1) {
           float wave1 = sin(vPosition.y * 5.0 + time * 2.0) * 0.5 + 0.5;
           float wave2 = sin(vPosition.x * 4.0 - time * 1.5) * 0.5 + 0.5;
           float wave3 = sin(length(vPosition.xz) * 6.0 + time * 2.5) * 0.5 + 0.5;
           float waves = (wave1 + wave2 + wave3) / 3.0;
 
-          // Mix avec vagues
-          waveColor = mix(baseColor, colorGlow, waves * chaos * 0.2);
+          // Mix avec vagues avec transition smooth
+          float waveIntensity = waves * chaos * 0.2 * smoothstep(0.1, 0.3, chaos);
+          waveColor = mix(baseColor, colorGlow, waveIntensity);
 
           // Énergie sur les zones déplacées (spikes)
           float energy = smoothstep(0.2, 0.8, vDisplacement) * chaos;
-          waveColor = mix(waveColor, colorGlow, energy * 0.3);
+          waveColor = mix(waveColor, colorGlow, energy * 0.3 * smoothstep(0.1, 0.3, chaos));
         }
 
-        // Fresnel glow (très doux pour bon score)
-        vec3 finalColor = waveColor + fresnel * colorGlow * (0.15 + chaos * 0.7);
+        // Fresnel glow progressif (lumineux et doux en mode paisible)
+        float fresnelIntensity = 0.4 + chaos * 0.5; // Plus lumineux en paisible
+        vec3 finalColor = waveColor + fresnel * colorGlow * fresnelIntensity;
 
-        // Pulsation d'énergie uniquement si chaotique
-        if (chaos > 0.15) {
+        // Pulsation d'énergie avec transition smooth
+        if (chaos > 0.1) {
           float pulse = sin(time * 3.0) * 0.5 + 0.5;
-          finalColor += colorDanger * pulse * chaos * 0.15;
+          float pulseIntensity = chaos * 0.15 * smoothstep(0.1, 0.3, chaos);
+          finalColor += colorDanger * pulse * pulseIntensity;
         }
 
-        // Opacité
-        float alpha = 0.85 + fresnel * 0.15;
+        // Plus de luminosité en mode paisible
+        finalColor *= (1.0 + (1.0 - chaos) * 0.3);
+
+        // Opacité avec glow pour mode paisible
+        float alpha = 0.85 + fresnel * (0.15 + (1.0 - chaos) * 0.1);
 
         gl_FragColor = vec4(finalColor, alpha);
       }
@@ -285,12 +297,12 @@ export default function AnimatedSphere() {
           glow: new THREE.Color(0xffdd88),
         };
       } else {
-        // SÉCURITÉ - Bleu/Cyan très doux et apaisant
+        // SÉCURITÉ - Bleu/Cyan lumineux et apaisant
         return {
-          danger: new THREE.Color(0x6699dd),
-          warning: new THREE.Color(0x88bbee),
-          safe: new THREE.Color(0xaaddff),
-          glow: new THREE.Color(0xccf0ff),
+          danger: new THREE.Color(0x88aaee),
+          warning: new THREE.Color(0xaaccff),
+          safe: new THREE.Color(0xccddff),
+          glow: new THREE.Color(0xe6f4ff),
         };
       }
     };
@@ -496,19 +508,19 @@ export default function AnimatedSphere() {
     const animate = () => {
       animationIdRef.current = requestAnimationFrame(animate);
 
-      // Score interpolé
+      // Score interpolé ultra-doux pour transitions sereines
       const targetScore = scoreRef.current / 100;
-      smoothScoreRef.current += (targetScore - smoothScoreRef.current) * 0.05;
+      smoothScoreRef.current += (targetScore - smoothScoreRef.current) * 0.02; // Très lent
       const normalizedScore = smoothScoreRef.current;
 
       // Chaos level (inversé : 1 = danger, 0 = sécurité)
       const chaosLevel = 1 - normalizedScore;
 
-      // Interpolation souris
+      // Interpolation souris très douce
       mouseRef.current.x +=
-        (targetMouseRef.current.x - mouseRef.current.x) * 0.08;
+        (targetMouseRef.current.x - mouseRef.current.x) * 0.04;
       mouseRef.current.y +=
-        (targetMouseRef.current.y - mouseRef.current.y) * 0.08;
+        (targetMouseRef.current.y - mouseRef.current.y) * 0.04;
 
       // Vitesse selon chaos (beaucoup plus lent pour bon score)
       const timeSpeed = 0.003 + chaosLevel * 0.02;
@@ -527,40 +539,35 @@ export default function AnimatedSphere() {
         mouseRef.current.y,
       );
 
-      // Update couleurs
+      // Update couleurs avec transition ultra-douce
       const targetPalette = getColorPalette(normalizedScore);
       shaderMaterial.uniforms.colorDanger.value.lerp(
         targetPalette.danger,
-        0.05,
+        0.015,
       );
       shaderMaterial.uniforms.colorWarning.value.lerp(
         targetPalette.warning,
-        0.05,
+        0.015,
       );
-      shaderMaterial.uniforms.colorSafe.value.lerp(targetPalette.safe, 0.05);
-      shaderMaterial.uniforms.colorGlow.value.lerp(targetPalette.glow, 0.05);
+      shaderMaterial.uniforms.colorSafe.value.lerp(targetPalette.safe, 0.015);
+      shaderMaterial.uniforms.colorGlow.value.lerp(targetPalette.glow, 0.015);
 
-      // Rotation sphère (immobile si sécurité, erratique si danger)
-      if (chaosLevel > 0.15) {
-        const rotSpeed = 0.001 + chaosLevel * 0.006;
-        const wobble = chaosLevel * chaosLevel * 0.08;
-        mesh.rotation.y += rotSpeed;
-        mesh.rotation.x = Math.sin(time * 0.3) * wobble;
-        mesh.rotation.z = Math.cos(time * 0.2) * wobble * 0.5;
-      } else {
-        // Rotation ultra lente et régulière en mode paisible
-        mesh.rotation.y += 0.0005;
-        mesh.rotation.x = 0;
-        mesh.rotation.z = 0;
-      }
+      // Rotation sphère avec transition progressive
+      const rotationTransition = Math.max(0, (chaosLevel - 0.1) / 0.2); // 0 à 1 entre chaos 0.1 et 0.3
+      const rotSpeed = 0.0003 + chaosLevel * 0.006;
+      const wobble = chaosLevel * chaosLevel * 0.08 * rotationTransition;
+
+      mesh.rotation.y += rotSpeed;
+      mesh.rotation.x = Math.sin(time * 0.3) * wobble;
+      mesh.rotation.z = Math.cos(time * 0.2) * wobble * 0.5;
 
       // Update disque d'accrétion
       discMaterial.uniforms.time.value = time;
       discMaterial.uniforms.chaos.value = chaosLevel;
-      discMaterial.uniforms.colorInner.value.lerp(targetPalette.glow, 0.05);
+      discMaterial.uniforms.colorInner.value.lerp(targetPalette.glow, 0.015);
       discMaterial.uniforms.colorOuter.value.lerp(
         new THREE.Color(0x000000).lerp(targetPalette.danger, 0.3),
-        0.05,
+        0.015,
       );
 
       // Rotation disque (très lente si bon score)
@@ -569,7 +576,7 @@ export default function AnimatedSphere() {
       // Update halo
       haloMaterial.uniforms.time.value = time;
       haloMaterial.uniforms.chaos.value = chaosLevel;
-      haloMaterial.uniforms.color.value.lerp(targetPalette.glow, 0.05);
+      haloMaterial.uniforms.color.value.lerp(targetPalette.glow, 0.015);
       halo.rotation.z -= 0.0003 + chaosLevel * 0.0015;
 
       // Particules en orbite (beaucoup plus lentes si bon score)
@@ -587,19 +594,19 @@ export default function AnimatedSphere() {
       }
       particlesGeometry.attributes.position.needsUpdate = true;
 
-      // Couleur particules
-      particlesMaterial.color.lerp(targetPalette.glow, 0.05);
+      // Couleur particules avec transition douce
+      particlesMaterial.color.lerp(targetPalette.glow, 0.015);
       particlesMaterial.opacity = 0.4 + chaosLevel * 0.4;
 
-      // Lumières dynamiques (plus douces)
-      keyLight.color.lerp(targetPalette.danger, 0.05);
-      keyLight.intensity = 1.0 + chaosLevel * 1.2;
-      fillLight.color.lerp(targetPalette.safe, 0.05);
-      fillLight.intensity = 0.8 + chaosLevel * 0.4;
+      // Lumières dynamiques avec transitions douces et luminosité en mode paisible
+      keyLight.color.lerp(targetPalette.danger, 0.015);
+      keyLight.intensity = 0.8 + chaosLevel * 1.2 + (1 - chaosLevel) * 0.4; // Plus lumineux en paisible
+      fillLight.color.lerp(targetPalette.safe, 0.015);
+      fillLight.intensity = 1.0 + chaosLevel * 0.4 + (1 - chaosLevel) * 0.3; // Plus lumineux en paisible
 
-      // Bloom (beaucoup réduit)
-      const targetBloom = 0.15 + chaosLevel * 0.6;
-      smoothBloomRef.current += (targetBloom - smoothBloomRef.current) * 0.05;
+      // Bloom progressif avec glow doux en mode paisible
+      const targetBloom = 0.2 + chaosLevel * 0.5 + (1 - chaosLevel) * 0.15; // Glow doux en paisible
+      smoothBloomRef.current += (targetBloom - smoothBloomRef.current) * 0.02; // Transition très lente
       bloomPass.strength = smoothBloomRef.current;
 
       composer.render();
