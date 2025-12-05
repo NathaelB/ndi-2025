@@ -13,7 +13,7 @@ export default function AnimatedSphere() {
   const smoothScoreRef = useRef<number>(score);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const targetMouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const smoothBloomRef = useRef<number>(0.3);
+  const smoothBloomRef = useRef<number>(0.15);
 
   useEffect(() => {
     scoreRef.current = score;
@@ -53,9 +53,9 @@ export default function AnimatedSphere() {
 
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(width, height),
-      0.8,
-      0.8,
-      0.3,
+      0.4,
+      0.6,
+      0.5,
     );
     composer.addPass(bloomPass);
 
@@ -160,28 +160,28 @@ export default function AnimatedSphere() {
         vPosition = position;
         vec3 pos = position;
 
-        // Déformation chaotique pour score bas
-        float noiseScale = 1.0 + chaos * 3.0;
-        float noiseFreq = time * (0.3 + chaos * 1.2);
+        // Déformation chaotique pour score bas, quasi nulle pour bon score
+        float noiseScale = 1.0 + chaos * 2.0;
+        float noiseFreq = time * (0.2 + chaos * 0.8);
 
-        // Multi-octave noise pour effet organique
+        // Multi-octave noise pour effet organique (réduit)
         float noise1 = snoise(pos * noiseScale + noiseFreq);
         float noise2 = snoise(pos * noiseScale * 2.0 - noiseFreq * 0.7) * 0.5;
         float noise3 = snoise(pos * noiseScale * 4.0 + noiseFreq * 0.5) * 0.25;
         float totalNoise = noise1 + noise2 + noise3;
 
-        // Spikes agressifs pour mauvais score
-        float spikeIntensity = chaos * 0.6;
+        // Spikes seulement pour mauvais score
+        float spikeIntensity = chaos * chaos * 0.4; // Quadratique pour adoucir
         float spikes = abs(sin(pos.x * 8.0 + time)) *
                        abs(sin(pos.y * 8.0 - time * 0.8)) *
                        abs(sin(pos.z * 8.0 + time * 0.6));
         spikes = pow(spikes, 3.0 - chaos * 2.0); // Plus pointu si chaos élevé
 
-        // Displacement total
-        float displacement = totalNoise * (0.1 + chaos * 0.7) + spikes * spikeIntensity;
+        // Displacement total (beaucoup réduit pour bon score)
+        float displacement = totalNoise * (0.03 + chaos * 0.5) + spikes * spikeIntensity;
 
-        // Pulsation globale
-        float pulse = sin(time * (0.5 + chaos * 2.0)) * (0.02 + chaos * 0.15);
+        // Pulsation globale (très douce pour bon score)
+        float pulse = sin(time * (0.3 + chaos * 1.5)) * (0.01 + chaos * 0.12);
 
         // Influence souris
         vec3 toMouse = mousePos - pos;
@@ -227,25 +227,25 @@ export default function AnimatedSphere() {
         vec3 dangerColor = mix(colorWarning, colorDanger, chaos);
         vec3 baseColor = mix(colorSafe, dangerColor, chaos);
 
-        // Vagues énergétiques
+        // Vagues énergétiques (réduites)
         float wave1 = sin(vPosition.y * 5.0 + time * 2.0) * 0.5 + 0.5;
         float wave2 = sin(vPosition.x * 4.0 - time * 1.5) * 0.5 + 0.5;
         float wave3 = sin(length(vPosition.xz) * 6.0 + time * 2.5) * 0.5 + 0.5;
         float waves = (wave1 + wave2 + wave3) / 3.0;
 
-        // Mix avec vagues
-        vec3 waveColor = mix(baseColor, colorGlow, waves * chaos * 0.4);
+        // Mix avec vagues (réduit)
+        vec3 waveColor = mix(baseColor, colorGlow, waves * chaos * 0.2);
 
-        // Énergie sur les zones déplacées (spikes)
+        // Énergie sur les zones déplacées (spikes) - réduit
         float energy = smoothstep(0.2, 0.8, vDisplacement) * chaos;
-        waveColor = mix(waveColor, colorGlow, energy * 0.6);
+        waveColor = mix(waveColor, colorGlow, energy * 0.3);
 
-        // Fresnel glow intense
-        vec3 finalColor = waveColor + fresnel * colorGlow * (0.5 + chaos * 1.5);
+        // Fresnel glow (beaucoup plus doux)
+        vec3 finalColor = waveColor + fresnel * colorGlow * (0.2 + chaos * 0.8);
 
-        // Pulsation d'énergie
+        // Pulsation d'énergie (réduite)
         float pulse = sin(time * 3.0) * 0.5 + 0.5;
-        finalColor += colorDanger * pulse * chaos * 0.3;
+        finalColor += colorDanger * pulse * chaos * 0.15;
 
         // Opacité
         float alpha = 0.85 + fresnel * 0.15;
@@ -259,26 +259,26 @@ export default function AnimatedSphere() {
       if (normalizedScore < 0.3) {
         // DANGER - Rouge/Orange agressif
         return {
-          danger: new THREE.Color(0xff0000),
-          warning: new THREE.Color(0xff4400),
-          safe: new THREE.Color(0xff6600),
-          glow: new THREE.Color(0xff8800),
+          danger: new THREE.Color(0xdd3333),
+          warning: new THREE.Color(0xee5533),
+          safe: new THREE.Color(0xff7744),
+          glow: new THREE.Color(0xff9955),
         };
       } else if (normalizedScore < 0.7) {
-        // ATTENTION - Orange/Jaune
+        // ATTENTION - Orange/Jaune doux
         return {
-          danger: new THREE.Color(0xff6600),
-          warning: new THREE.Color(0xff9900),
-          safe: new THREE.Color(0xffbb00),
-          glow: new THREE.Color(0xffdd44),
+          danger: new THREE.Color(0xdd8844),
+          warning: new THREE.Color(0xeeaa55),
+          safe: new THREE.Color(0xffcc66),
+          glow: new THREE.Color(0xffdd88),
         };
       } else {
-        // SÉCURITÉ - Bleu/Cyan apaisant
+        // SÉCURITÉ - Bleu/Cyan très doux et apaisant
         return {
-          danger: new THREE.Color(0x4488ff),
-          warning: new THREE.Color(0x66aaff),
-          safe: new THREE.Color(0x88ccff),
-          glow: new THREE.Color(0xaaeeff),
+          danger: new THREE.Color(0x6699dd),
+          warning: new THREE.Color(0x88bbee),
+          safe: new THREE.Color(0xaaddff),
+          glow: new THREE.Color(0xccf0ff),
         };
       }
     };
@@ -307,8 +307,8 @@ export default function AnimatedSphere() {
     const mesh = new THREE.Mesh(geometry, shaderMaterial);
     scene.add(mesh);
 
-    // === DISQUE D'ACCRÉTION TROU NOIR ===
-    const discGeometry = new THREE.RingGeometry(2.5, 5.0, 64, 8);
+    // === DISQUE D'ACCRÉTION TROU NOIR (discret) ===
+    const discGeometry = new THREE.RingGeometry(2.5, 4.5, 64, 8);
 
     const discVertexShader = `
       varying vec2 vUv;
@@ -335,21 +335,21 @@ export default function AnimatedSphere() {
         float dist = length(vPosition.xy);
         float normalizedDist = (dist - 2.5) / 2.5;
 
-        // Spirale
+        // Spirale (réduite)
         float angle = atan(vPosition.y, vPosition.x);
-        float spiral = sin(angle * 8.0 - time * 2.0 + dist * 3.0) * 0.5 + 0.5;
+        float spiral = sin(angle * 6.0 - time * 1.5 + dist * 2.5) * 0.5 + 0.5;
 
-        // Turbulence
-        float turbulence = sin(dist * 10.0 - time * 3.0) *
-                          cos(angle * 6.0 + time * 1.5) * 0.5 + 0.5;
+        // Turbulence (réduite)
+        float turbulence = sin(dist * 8.0 - time * 2.0) *
+                          cos(angle * 5.0 + time * 1.0) * 0.5 + 0.5;
 
-        // Couleur gradient
+        // Couleur gradient (plus doux)
         vec3 color = mix(colorInner, colorOuter, normalizedDist);
-        color = mix(color, colorInner * 1.5, spiral * 0.4);
-        color += turbulence * 0.2 * chaos;
+        color = mix(color, colorInner * 1.3, spiral * 0.25);
+        color += turbulence * 0.1 * chaos;
 
-        // Opacité selon distance et chaos
-        float alpha = (1.0 - normalizedDist) * (0.3 + chaos * 0.5);
+        // Opacité selon distance et chaos (beaucoup réduite pour bon score)
+        float alpha = (1.0 - normalizedDist) * (0.15 + chaos * 0.4);
         alpha *= smoothstep(0.0, 0.2, normalizedDist); // Fade au centre
 
         gl_FragColor = vec4(color, alpha);
@@ -376,7 +376,7 @@ export default function AnimatedSphere() {
     scene.add(accretionDisc);
 
     // Halo externe type trou noir
-    const haloGeometry = new THREE.RingGeometry(4.5, 6.5, 64, 1);
+    const haloGeometry = new THREE.RingGeometry(4.5, 6.0, 64, 1);
     const haloMaterial = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
@@ -397,8 +397,8 @@ export default function AnimatedSphere() {
         varying vec2 vUv;
 
         void main() {
-          float pulse = sin(time * 2.0) * 0.3 + 0.7;
-          float alpha = (1.0 - vUv.y) * 0.2 * chaos * pulse;
+          float pulse = sin(time * 1.5) * 0.2 + 0.8;
+          float alpha = (1.0 - vUv.y) * 0.12 * chaos * pulse;
           gl_FragColor = vec4(color, alpha);
         }
       `,
@@ -498,8 +498,8 @@ export default function AnimatedSphere() {
       mouseRef.current.y +=
         (targetMouseRef.current.y - mouseRef.current.y) * 0.08;
 
-      // Vitesse selon chaos
-      const timeSpeed = 0.008 + chaosLevel * 0.025;
+      // Vitesse selon chaos (beaucoup plus lent pour bon score)
+      const timeSpeed = 0.003 + chaosLevel * 0.02;
       time += timeSpeed;
 
       // Update uniforms sphère
@@ -528,12 +528,12 @@ export default function AnimatedSphere() {
       shaderMaterial.uniforms.colorSafe.value.lerp(targetPalette.safe, 0.05);
       shaderMaterial.uniforms.colorGlow.value.lerp(targetPalette.glow, 0.05);
 
-      // Rotation sphère (erratique si danger, calme si sécurité)
-      const rotSpeed = 0.002 + chaosLevel * 0.008;
-      const wobble = chaosLevel * 0.1;
+      // Rotation sphère (quasi immobile si sécurité, erratique si danger)
+      const rotSpeed = 0.001 + chaosLevel * 0.006;
+      const wobble = chaosLevel * chaosLevel * 0.08; // Quadratique
       mesh.rotation.y += rotSpeed;
-      mesh.rotation.x = Math.sin(time * 0.5) * wobble;
-      mesh.rotation.z = Math.cos(time * 0.3) * wobble * 0.5;
+      mesh.rotation.x = Math.sin(time * 0.3) * wobble;
+      mesh.rotation.z = Math.cos(time * 0.2) * wobble * 0.5;
 
       // Update disque d'accrétion
       discMaterial.uniforms.time.value = time;
@@ -544,19 +544,19 @@ export default function AnimatedSphere() {
         0.05,
       );
 
-      // Rotation disque
-      accretionDisc.rotation.z += 0.001 + chaosLevel * 0.003;
+      // Rotation disque (très lente si bon score)
+      accretionDisc.rotation.z += 0.0005 + chaosLevel * 0.0025;
 
       // Update halo
       haloMaterial.uniforms.time.value = time;
       haloMaterial.uniforms.chaos.value = chaosLevel;
       haloMaterial.uniforms.color.value.lerp(targetPalette.glow, 0.05);
-      halo.rotation.z -= 0.0005 + chaosLevel * 0.002;
+      halo.rotation.z -= 0.0003 + chaosLevel * 0.0015;
 
-      // Particules en orbite
+      // Particules en orbite (beaucoup plus lentes si bon score)
       const particlePos = particlesGeometry.attributes.position
         .array as Float32Array;
-      const speedMultiplier = 1.0 + chaosLevel * 3.0;
+      const speedMultiplier = 0.5 + chaosLevel * 2.5;
 
       for (let i = 0; i < particleCount; i += 2) {
         particleAngles[i] += particleSpeeds[i] * 0.01 * speedMultiplier;
@@ -572,13 +572,14 @@ export default function AnimatedSphere() {
       particlesMaterial.color.lerp(targetPalette.glow, 0.05);
       particlesMaterial.opacity = 0.4 + chaosLevel * 0.4;
 
-      // Lumières dynamiques
+      // Lumières dynamiques (plus douces)
       keyLight.color.lerp(targetPalette.danger, 0.05);
-      keyLight.intensity = 1.5 + chaosLevel * 1.5;
+      keyLight.intensity = 1.0 + chaosLevel * 1.2;
       fillLight.color.lerp(targetPalette.safe, 0.05);
+      fillLight.intensity = 0.8 + chaosLevel * 0.4;
 
-      // Bloom
-      const targetBloom = 0.3 + chaosLevel * 1.2;
+      // Bloom (beaucoup réduit)
+      const targetBloom = 0.15 + chaosLevel * 0.6;
       smoothBloomRef.current += (targetBloom - smoothBloomRef.current) * 0.05;
       bloomPass.strength = smoothBloomRef.current;
 
