@@ -15,8 +15,6 @@ import {
   Sparkles,
   FolderGit2,
   Circle,
-  Edit,
-  Trash2,
 } from "lucide-react";
 
 interface TalentCardProps {
@@ -25,7 +23,7 @@ interface TalentCardProps {
   onDelete?: (id: number) => void;
 }
 
-export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
+export function TalentCard({ talent }: TalentCardProps) {
   const goldScore = calculateGoldScore(talent);
   const displayedSkills = talent.skills.slice(0, 4);
   const remainingSkills = talent.skills.length - displayedSkills.length;
@@ -46,7 +44,6 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
   };
 
   const availability = availabilityConfig[talent.availability];
-  const isLocalTalent = talent.id >= 9000; // Talents locaux ont des IDs >= 9000
 
   // Styles spéciaux pour les cartes Platinum et Gold (style LoL)
   const getTierCardStyles = () => {
