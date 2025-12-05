@@ -95,13 +95,77 @@ export function DiagnosticIndexPage() {
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
+<<<<<<< HEAD
           <Card className="border border-slate-700/50 bg-slate-900/30 backdrop-blur-md hover:bg-slate-900/50 transition-all">
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
                 <div className="text-4xl">⚡</div>
+=======
+          {/* Features simplifiées */}
+          <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-linear-to-br from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 hover:shadow-2xl transition-all duration-300">
+              <CardContent className="pt-8 pb-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-4xl">🎯</div>
+                    <h3 className="font-bold text-xl">Évaluation complète</h3>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">3 axes évalués</strong> : souveraineté, durabilité et inclusion numérique pour une vision à 360°.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 font-medium">
+                    <Zap className="w-4 h-4" />
+                    5 minutes chrono
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 hover:shadow-2xl transition-all duration-300">
+              <CardContent className="pt-8 pb-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-4xl">🏆</div>
+                    <h3 className="font-bold text-xl">Résultats visuels</h3>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">Village gaulois animé</strong> avec recommandations personnalisées pour progresser vers l'autonomie numérique.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-300 font-medium">
+                    <Award className="w-4 h-4" />
+                    Conseils sur-mesure
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center space-y-8 pt-12">
+            <div className="space-y-4">
+              <StartButton />
+              <p className="text-base text-muted-foreground flex items-center justify-center gap-6 flex-wrap">
+                <span className="flex items-center gap-2">
+                  <span className="text-lg">⏱️</span>
+                  <span>Temps estimé : 5 minutes</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-lg">🔒</span>
+                  <span>Aucune donnée sauvegardée</span>
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Info banner */}
+          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <Award className="w-8 h-8 text-blue-600 dark:text-blue-400 shrink-0" />
+>>>>>>> 1144679 (feat: Implement scroll indicator and adaptive content morphing features)
                 <div className="space-y-2">
                   <h3 className="font-semibold text-lg text-white">
                     Rapide et ludique
