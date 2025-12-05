@@ -12,13 +12,17 @@ import {
   Sparkles,
   FolderGit2,
   Circle,
+  Edit,
+  Trash2,
 } from "lucide-react";
 
 interface TalentCardProps {
   talent: Talent;
+  onEdit?: (talent: Talent) => void;
+  onDelete?: (id: number) => void;
 }
 
-export function TalentCard({ talent }: TalentCardProps) {
+export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
   const displayedSkills = talent.skills.slice(0, 4);
   const remainingSkills = talent.skills.length - displayedSkills.length;
   const displayedProjects = talent.projects.slice(0, 2);
@@ -38,11 +42,12 @@ export function TalentCard({ talent }: TalentCardProps) {
   };
 
   const availability = availabilityConfig[talent.availability];
+  const isLocalTalent = talent.id >= 9000; // Talents locaux ont des IDs >= 9000
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:border-primary/50 overflow-hidden">
       {/* Header avec avatar et info principale */}
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 relative">
         <div className="flex gap-4">
           {/* Avatar */}
           <div className="relative shrink-0">
@@ -83,6 +88,40 @@ export function TalentCard({ talent }: TalentCardProps) {
             </div>
           </div>
         </div>
+
+        {/* Actions pour talents locaux */}
+        {isLocalTalent && (onEdit || onDelete) && (
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 bg-background/80 backdrop-blur-sm hover:bg-background"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(talent);
+                }}
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 bg-background/80 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm(`Supprimer ${talent.name} ?`)) {
+                    onDelete(talent.id);
+                  }
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-4">
