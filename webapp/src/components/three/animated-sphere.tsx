@@ -160,35 +160,41 @@ export default function AnimatedSphere() {
         vPosition = position;
         vec3 pos = position;
 
-        // Déformation chaotique pour score bas, quasi nulle pour bon score
-        float noiseScale = 1.0 + chaos * 2.0;
-        float noiseFreq = time * (0.2 + chaos * 0.8);
+        // Déformations uniquement si chaos > seuil
+        float displacement = 0.0;
 
-        // Multi-octave noise pour effet organique (réduit)
-        float noise1 = snoise(pos * noiseScale + noiseFreq);
-        float noise2 = snoise(pos * noiseScale * 2.0 - noiseFreq * 0.7) * 0.5;
-        float noise3 = snoise(pos * noiseScale * 4.0 + noiseFreq * 0.5) * 0.25;
-        float totalNoise = noise1 + noise2 + noise3;
+        if (chaos > 0.15) {
+          // Déformation chaotique pour score bas, nulle pour bon score
+          float noiseScale = 1.0 + chaos * 2.0;
+          float noiseFreq = time * (0.2 + chaos * 0.8);
 
-        // Spikes seulement pour mauvais score
-        float spikeIntensity = chaos * chaos * 0.4; // Quadratique pour adoucir
-        float spikes = abs(sin(pos.x * 8.0 + time)) *
-                       abs(sin(pos.y * 8.0 - time * 0.8)) *
-                       abs(sin(pos.z * 8.0 + time * 0.6));
-        spikes = pow(spikes, 3.0 - chaos * 2.0); // Plus pointu si chaos élevé
+          // Multi-octave noise pour effet organique
+          float noise1 = snoise(pos * noiseScale + noiseFreq);
+          float noise2 = snoise(pos * noiseScale * 2.0 - noiseFreq * 0.7) * 0.5;
+          float noise3 = snoise(pos * noiseScale * 4.0 + noiseFreq * 0.5) * 0.25;
+          float totalNoise = noise1 + noise2 + noise3;
 
-        // Displacement total (beaucoup réduit pour bon score)
-        float displacement = totalNoise * (0.03 + chaos * 0.5) + spikes * spikeIntensity;
+          // Spikes seulement pour mauvais score
+          float spikeIntensity = chaos * chaos * 0.4;
+          float spikes = abs(sin(pos.x * 8.0 + time)) *
+                         abs(sin(pos.y * 8.0 - time * 0.8)) *
+                         abs(sin(pos.z * 8.0 + time * 0.6));
+          spikes = pow(spikes, 3.0 - chaos * 2.0);
 
-        // Pulsation globale (très douce pour bon score)
-        float pulse = sin(time * (0.3 + chaos * 1.5)) * (0.01 + chaos * 0.12);
+          // Displacement total
+          displacement = totalNoise * (0.03 + chaos * 0.5) + spikes * spikeIntensity;
 
-        // Influence souris
+          // Pulsation globale
+          float pulse = sin(time * (0.3 + chaos * 1.5)) * (0.01 + chaos * 0.12);
+          displacement += pulse;
+        }
+
+        // Influence souris (très légère)
         vec3 toMouse = mousePos - pos;
         float mouseDist = length(toMouse);
-        float mouseEffect = smoothstep(3.0, 0.0, mouseDist) * 0.2;
+        float mouseEffect = smoothstep(3.0, 0.0, mouseDist) * 0.1 * chaos;
 
-        pos += normalize(pos) * (displacement + pulse + mouseEffect);
+        pos += normalize(pos) * (displacement + mouseEffect);
         vDisplacement = displacement;
 
         vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
@@ -227,25 +233,31 @@ export default function AnimatedSphere() {
         vec3 dangerColor = mix(colorWarning, colorDanger, chaos);
         vec3 baseColor = mix(colorSafe, dangerColor, chaos);
 
-        // Vagues énergétiques (réduites)
-        float wave1 = sin(vPosition.y * 5.0 + time * 2.0) * 0.5 + 0.5;
-        float wave2 = sin(vPosition.x * 4.0 - time * 1.5) * 0.5 + 0.5;
-        float wave3 = sin(length(vPosition.xz) * 6.0 + time * 2.5) * 0.5 + 0.5;
-        float waves = (wave1 + wave2 + wave3) / 3.0;
+        vec3 waveColor = baseColor;
 
-        // Mix avec vagues (réduit)
-        vec3 waveColor = mix(baseColor, colorGlow, waves * chaos * 0.2);
+        // Vagues énergétiques uniquement si chaos > seuil
+        if (chaos > 0.15) {
+          float wave1 = sin(vPosition.y * 5.0 + time * 2.0) * 0.5 + 0.5;
+          float wave2 = sin(vPosition.x * 4.0 - time * 1.5) * 0.5 + 0.5;
+          float wave3 = sin(length(vPosition.xz) * 6.0 + time * 2.5) * 0.5 + 0.5;
+          float waves = (wave1 + wave2 + wave3) / 3.0;
 
-        // Énergie sur les zones déplacées (spikes) - réduit
-        float energy = smoothstep(0.2, 0.8, vDisplacement) * chaos;
-        waveColor = mix(waveColor, colorGlow, energy * 0.3);
+          // Mix avec vagues
+          waveColor = mix(baseColor, colorGlow, waves * chaos * 0.2);
 
-        // Fresnel glow (beaucoup plus doux)
-        vec3 finalColor = waveColor + fresnel * colorGlow * (0.2 + chaos * 0.8);
+          // Énergie sur les zones déplacées (spikes)
+          float energy = smoothstep(0.2, 0.8, vDisplacement) * chaos;
+          waveColor = mix(waveColor, colorGlow, energy * 0.3);
+        }
 
-        // Pulsation d'énergie (réduite)
-        float pulse = sin(time * 3.0) * 0.5 + 0.5;
-        finalColor += colorDanger * pulse * chaos * 0.15;
+        // Fresnel glow (très doux pour bon score)
+        vec3 finalColor = waveColor + fresnel * colorGlow * (0.15 + chaos * 0.7);
+
+        // Pulsation d'énergie uniquement si chaotique
+        if (chaos > 0.15) {
+          float pulse = sin(time * 3.0) * 0.5 + 0.5;
+          finalColor += colorDanger * pulse * chaos * 0.15;
+        }
 
         // Opacité
         float alpha = 0.85 + fresnel * 0.15;
@@ -528,12 +540,19 @@ export default function AnimatedSphere() {
       shaderMaterial.uniforms.colorSafe.value.lerp(targetPalette.safe, 0.05);
       shaderMaterial.uniforms.colorGlow.value.lerp(targetPalette.glow, 0.05);
 
-      // Rotation sphère (quasi immobile si sécurité, erratique si danger)
-      const rotSpeed = 0.001 + chaosLevel * 0.006;
-      const wobble = chaosLevel * chaosLevel * 0.08; // Quadratique
-      mesh.rotation.y += rotSpeed;
-      mesh.rotation.x = Math.sin(time * 0.3) * wobble;
-      mesh.rotation.z = Math.cos(time * 0.2) * wobble * 0.5;
+      // Rotation sphère (immobile si sécurité, erratique si danger)
+      if (chaosLevel > 0.15) {
+        const rotSpeed = 0.001 + chaosLevel * 0.006;
+        const wobble = chaosLevel * chaosLevel * 0.08;
+        mesh.rotation.y += rotSpeed;
+        mesh.rotation.x = Math.sin(time * 0.3) * wobble;
+        mesh.rotation.z = Math.cos(time * 0.2) * wobble * 0.5;
+      } else {
+        // Rotation ultra lente et régulière en mode paisible
+        mesh.rotation.y += 0.0005;
+        mesh.rotation.x = 0;
+        mesh.rotation.z = 0;
+      }
 
       // Update disque d'accrétion
       discMaterial.uniforms.time.value = time;
