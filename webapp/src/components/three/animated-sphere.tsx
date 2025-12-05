@@ -296,6 +296,7 @@ export default function AnimatedSphere({ score = 50 }: AnimatedSphereProps) {
       className="fixed inset-0 z-0"
       style={{
         background: "linear-gradient(to bottom, #0a0a0a, #1a1a2e, #0a0a0a)",
+        pointerEvents: "none",
       }}
     />
   );

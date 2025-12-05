@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as MoodRouteImport } from './routes/mood'
+import { Route as DiagnosticRouteImport } from './routes/diagnostic'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as TalentsMapRouteImport } from './routes/talents.map'
@@ -22,9 +22,9 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MoodRoute = MoodRouteImport.update({
-  id: '/mood',
-  path: '/mood',
+const DiagnosticRoute = DiagnosticRouteImport.update({
+  id: '/diagnostic',
+  path: '/diagnostic',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -33,9 +33,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiagnosticIndexRoute = DiagnosticIndexRouteImport.update({
-  id: '/diagnostic/',
-  path: '/diagnostic/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => DiagnosticRoute,
 } as any)
 const TalentsMapRoute = TalentsMapRouteImport.update({
   id: '/talents/map',
@@ -43,28 +43,27 @@ const TalentsMapRoute = TalentsMapRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiagnosticResultRoute = DiagnosticResultRouteImport.update({
-  id: '/diagnostic/result',
-  path: '/diagnostic/result',
-  getParentRoute: () => rootRouteImport,
+  id: '/result',
+  path: '/result',
+  getParentRoute: () => DiagnosticRoute,
 } as any)
 const DiagnosticQuestionsRoute = DiagnosticQuestionsRouteImport.update({
-  id: '/diagnostic/questions',
-  path: '/diagnostic/questions',
-  getParentRoute: () => rootRouteImport,
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => DiagnosticRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/mood': typeof MoodRoute
+  '/diagnostic': typeof DiagnosticRouteWithChildren
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
   '/talents/map': typeof TalentsMapRoute
-  '/diagnostic': typeof DiagnosticIndexRoute
+  '/diagnostic/': typeof DiagnosticIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/mood': typeof MoodRoute
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
@@ -74,7 +73,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/mood': typeof MoodRoute
+  '/diagnostic': typeof DiagnosticRouteWithChildren
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
@@ -85,16 +84,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/mood'
+    | '/diagnostic'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
     | '/talents/map'
-    | '/diagnostic'
+    | '/diagnostic/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/mood'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
@@ -103,7 +101,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/mood'
+    | '/diagnostic'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
@@ -113,12 +111,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  MoodRoute: typeof MoodRoute
+  DiagnosticRoute: typeof DiagnosticRouteWithChildren
   WelcomeRoute: typeof WelcomeRoute
-  DiagnosticQuestionsRoute: typeof DiagnosticQuestionsRoute
-  DiagnosticResultRoute: typeof DiagnosticResultRoute
   TalentsMapRoute: typeof TalentsMapRoute
-  DiagnosticIndexRoute: typeof DiagnosticIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -130,11 +125,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mood': {
-      id: '/mood'
-      path: '/mood'
-      fullPath: '/mood'
-      preLoaderRoute: typeof MoodRouteImport
+    '/diagnostic': {
+      id: '/diagnostic'
+      path: '/diagnostic'
+      fullPath: '/diagnostic'
+      preLoaderRoute: typeof DiagnosticRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -146,10 +141,10 @@ declare module '@tanstack/react-router' {
     }
     '/diagnostic/': {
       id: '/diagnostic/'
-      path: '/diagnostic'
-      fullPath: '/diagnostic'
+      path: '/'
+      fullPath: '/diagnostic/'
       preLoaderRoute: typeof DiagnosticIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DiagnosticRoute
     }
     '/talents/map': {
       id: '/talents/map'
@@ -160,29 +155,42 @@ declare module '@tanstack/react-router' {
     }
     '/diagnostic/result': {
       id: '/diagnostic/result'
-      path: '/diagnostic/result'
+      path: '/result'
       fullPath: '/diagnostic/result'
       preLoaderRoute: typeof DiagnosticResultRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DiagnosticRoute
     }
     '/diagnostic/questions': {
       id: '/diagnostic/questions'
-      path: '/diagnostic/questions'
+      path: '/questions'
       fullPath: '/diagnostic/questions'
       preLoaderRoute: typeof DiagnosticQuestionsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DiagnosticRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  MoodRoute: MoodRoute,
-  WelcomeRoute: WelcomeRoute,
+interface DiagnosticRouteChildren {
+  DiagnosticQuestionsRoute: typeof DiagnosticQuestionsRoute
+  DiagnosticResultRoute: typeof DiagnosticResultRoute
+  DiagnosticIndexRoute: typeof DiagnosticIndexRoute
+}
+
+const DiagnosticRouteChildren: DiagnosticRouteChildren = {
   DiagnosticQuestionsRoute: DiagnosticQuestionsRoute,
   DiagnosticResultRoute: DiagnosticResultRoute,
-  TalentsMapRoute: TalentsMapRoute,
   DiagnosticIndexRoute: DiagnosticIndexRoute,
+}
+
+const DiagnosticRouteWithChildren = DiagnosticRoute._addFileChildren(
+  DiagnosticRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  DiagnosticRoute: DiagnosticRouteWithChildren,
+  WelcomeRoute: WelcomeRoute,
+  TalentsMapRoute: TalentsMapRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
