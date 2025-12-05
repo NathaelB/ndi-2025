@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tanstack": "tanstack-router"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.8",
@@ -29,6 +30,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@tanstack/router-cli": "^1.139.14",
+    "@tanstack/router-plugin": "^1.139.14",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
