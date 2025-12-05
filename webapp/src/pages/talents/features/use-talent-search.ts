@@ -12,14 +12,41 @@ export function useTalentSearch(talents: Talent[] | undefined) {
 
     return talents.filter((talent) => {
       const nameMatch = talent.name.toLowerCase().includes(query);
+      const roleMatch = talent.role.toLowerCase().includes(query);
+      const bioMatch = talent.bio.toLowerCase().includes(query);
+      const locationMatch = talent.location.toLowerCase().includes(query);
+
       const skillMatch = talent.skills.some((skill) =>
-        skill.toLowerCase().includes(query),
+        skill.name.toLowerCase().includes(query),
       );
-      const languageMatch = talent.languages?.some((lang) =>
+
+      const languageMatch = talent.languages.some((lang) =>
         lang.toLowerCase().includes(query),
       );
 
-      return nameMatch || skillMatch || languageMatch;
+      const talentMatch = talent.talents.some((t) =>
+        t.toLowerCase().includes(query),
+      );
+
+      const projectMatch = talent.projects.some(
+        (project) =>
+          project.name.toLowerCase().includes(query) ||
+          project.description.toLowerCase().includes(query) ||
+          project.technologies.some((tech) =>
+            tech.toLowerCase().includes(query),
+          ),
+      );
+
+      return (
+        nameMatch ||
+        roleMatch ||
+        bioMatch ||
+        locationMatch ||
+        skillMatch ||
+        languageMatch ||
+        talentMatch ||
+        projectMatch
+      );
     });
   }, [talents, searchQuery]);
 
