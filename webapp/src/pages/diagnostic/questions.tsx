@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { DIAGNOSTIC_QUESTIONS } from "./features/types";
 import { useScore } from "./features/score-context";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function DiagnosticQuestionsPage() {
@@ -73,14 +74,16 @@ export function DiagnosticQuestionsPage() {
           </div>
 
           {/* Question title */}
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-              {currentQuestion.title}
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              {currentQuestion.description}
-            </p>
-          </div>
+          <Card className="border border-slate-700/50 bg-slate-900/40 backdrop-blur-md shadow-2xl">
+            <CardContent className="text-center space-y-3 py-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+                {currentQuestion.title}
+              </h2>
+              <p className="text-lg text-slate-200 max-w-2xl mx-auto">
+                {currentQuestion.description}
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Options */}
           <div className="space-y-3 pt-4">
@@ -89,8 +92,8 @@ export function DiagnosticQuestionsPage() {
                 key={option.value}
                 onClick={() => handleAnswerChange(option.value)}
                 className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-300 ${answers[currentQuestion.id] === option.value
-                    ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
-                    : "border-slate-700/50 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm"
+                  ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
+                  : "border-slate-700/50 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm"
                   }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -127,8 +130,8 @@ export function DiagnosticQuestionsPage() {
             onClick={handleNext}
             disabled={!hasAnswered}
             className={`gap-2 px-8 ${hasAnswered
-                ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/30"
-                : "bg-slate-700 text-slate-400"
+              ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/30"
+              : "bg-slate-700 text-slate-400"
               }`}
           >
             {isLastStep ? "Voir les résultats" : "Suivant"}
