@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as MoodRouteImport } from './routes/mood'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DiagnosticIndexRouteImport } from './routes/diagnostic.index'
 import { Route as TalentsMapRouteImport } from './routes/talents.map'
@@ -19,6 +20,11 @@ import { Route as DiagnosticQuestionsRouteImport } from './routes/diagnostic.que
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoodRoute = MoodRouteImport.update({
+  id: '/mood',
+  path: '/mood',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,6 +55,7 @@ const DiagnosticQuestionsRoute = DiagnosticQuestionsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mood': typeof MoodRoute
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mood': typeof MoodRoute
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mood': typeof MoodRoute
   '/welcome': typeof WelcomeRoute
   '/diagnostic/questions': typeof DiagnosticQuestionsRoute
   '/diagnostic/result': typeof DiagnosticResultRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/mood'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/mood'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/mood'
     | '/welcome'
     | '/diagnostic/questions'
     | '/diagnostic/result'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MoodRoute: typeof MoodRoute
   WelcomeRoute: typeof WelcomeRoute
   DiagnosticQuestionsRoute: typeof DiagnosticQuestionsRoute
   DiagnosticResultRoute: typeof DiagnosticResultRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mood': {
+      id: '/mood'
+      path: '/mood'
+      fullPath: '/mood'
+      preLoaderRoute: typeof MoodRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MoodRoute: MoodRoute,
   WelcomeRoute: WelcomeRoute,
   DiagnosticQuestionsRoute: DiagnosticQuestionsRoute,
   DiagnosticResultRoute: DiagnosticResultRoute,
