@@ -1,0 +1,89 @@
+{{- if .Values.apps.webapp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  {{- if not .Values.apps.webapp.autoscaling.enabled }}
+  replicas: {{ .Values.apps.webapp.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      {{- with .Values.apps.webapp.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: webapp
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- with .Values.apps.webapp.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.apps.webapp.serviceAccount.name | default "webapp" }}
+      {{- with .Values.apps.webapp.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: webapp
+        {{- with .Values.apps.webapp.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        image: "{{ .Values.apps.webapp.image.repository }}:{{ .Values.apps.webapp.image.tag }}"
+        imagePullPolicy: {{ .Values.apps.webapp.image.pullPolicy | default .Values.global.imagePullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.apps.webapp.containerPort }}
+          protocol: TCP
+        {{- if .Values.apps.webapp.livenessProbe }}
+        livenessProbe:
+          {{- toYaml .Values.apps.webapp.livenessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.apps.webapp.readinessProbe }}
+        readinessProbe:
+          {{- toYaml .Values.apps.webapp.readinessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.apps.webapp.resources }}
+        resources:
+          {{- toYaml .Values.apps.webapp.resources | nindent 12 }}
+        {{- end }}
+        {{- with .Values.apps.webapp.env }}
+        env:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.apps.webapp.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- with .Values.apps.webapp.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.webapp.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.webapp.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.webapp.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,89 @@
+{{- if .Values.apps.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  {{- if not .Values.apps.api.autoscaling.enabled }}
+  replicas: {{ .Values.apps.api.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      {{- with .Values.apps.api.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: api
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- with .Values.apps.api.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.apps.api.serviceAccount.name | default "api" }}
+      {{- with .Values.apps.api.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: api
+        {{- with .Values.apps.api.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        image: "{{ .Values.apps.api.image.repository }}:{{ .Values.apps.api.image.tag }}"
+        imagePullPolicy: {{ .Values.apps.api.image.pullPolicy | default .Values.global.imagePullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.apps.api.containerPort }}
+          protocol: TCP
+        {{- if .Values.apps.api.livenessProbe }}
+        livenessProbe:
+          {{- toYaml .Values.apps.api.livenessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.apps.api.readinessProbe }}
+        readinessProbe:
+          {{- toYaml .Values.apps.api.readinessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.apps.api.resources }}
+        resources:
+          {{- toYaml .Values.apps.api.resources | nindent 12 }}
+        {{- end }}
+        {{- with .Values.apps.api.env }}
+        env:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.apps.api.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- with .Values.apps.api.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.api.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apps.api.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
