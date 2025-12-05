@@ -4,26 +4,24 @@ import { TimelineNavigator } from './timeline-navigator'
 import { AdaptiveContentMorphing } from './adaptive-content-morphing'
 import { ContextualActionPredictor } from './contextual-action-predictor'
 import { ScrollIndicator } from './scroll-indicator'
-import { Badge } from '@/components/ui/badge'
-import { Shield } from 'lucide-react'
 
 /**
  * WELCOME PAGE - Navigation Temporelle Cognitive
- * 
+ *
  * TRANSFORMATION ERGONOMIQUE RADICALE :
  * Abandonne la structure linéaire statique (Hero → Features → CTA)
  * Pour une expérience adaptative basée sur l'état cognitif temporel de l'utilisateur.
- * 
+ *
  * Au lieu de montrer le même contenu à tous, l'interface détecte :
  * - Si c'est ta première visite ou si tu reviens
  * - Ton comportement (scroll, temps passé, engagement)
  * - Ta progression (diagnostic démarré/complété)
- * 
+ *
  * Et adapte automatiquement :
  * - Le parcours de navigation (Présent/Passé/Futur)
  * - Le contenu affiché (émotionnel/analytique/actionnable)
  * - Les CTA proposés (explorateur/comparateur/acteur)
- * 
+ *
  * C'est une révolution : passer d'une interface "vitrine" à une interface "coach"
  */
 
@@ -57,11 +55,11 @@ export function WelcomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              
+
             </motion.div>
 
             {/* Main Title avec meilleure hiérarchie */}
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -83,13 +81,13 @@ export function WelcomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
             >
-              {temporalState === 'present' && 
+              {temporalState === 'present' &&
                 "Découvre pourquoi la souveraineté numérique éducative est l'enjeu de cette décennie."
               }
-              {temporalState === 'past' && 
+              {temporalState === 'past' &&
                 "Compare tes choix actuels avec les alternatives. Les chiffres parlent d'eux-mêmes."
               }
-              {temporalState === 'future' && 
+              {temporalState === 'future' &&
                 "Plan d'action concret pour reprendre le contrôle de ton infrastructure numérique."
               }
             </motion.p>
@@ -102,7 +100,7 @@ export function WelcomePage() {
               transition={{ delay: 0.7, duration: 0.8 }}
             />
           </motion.div>
-          
+
           {/* Timeline Navigator avec meilleur espacement */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -123,7 +121,7 @@ export function WelcomePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 0.8 }}
           >
-            <ScrollIndicator 
+            <ScrollIndicator
               targetId="why-important"
               label="Pourquoi c'est important ?"
             />

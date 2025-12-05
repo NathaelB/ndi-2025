@@ -5,18 +5,18 @@ import { type TemporalState } from '../features/use-temporal-navigation'
 
 /**
  * ADAPTIVE CONTENT MORPHING
- * 
+ *
  * CASSAGE DE CONVENTION MAJEUR :
  * Le contenu ne se cache/affiche pas, il SE TRANSFORME selon l'état temporel.
  * - PRÉSENT : Découverte empathique (pourquoi c'est important)
  * - PASSÉ : Réflexion analytique (comparaison de choix, données chiffrées)
  * - FUTUR : Action directive (étapes concrètes, roadmap)
- * 
+ *
  * Pourquoi c'est différent ?
  * - Les interfaces classiques montrent/cachent du contenu (binary thinking)
  * - Ici, le contenu ÉVOLUE organiquement selon le contexte mental
  * - C'est comme une conversation qui s'adapte à ton humeur
- * 
+ *
  * Inspiration :
  * - Adaptive learning platforms (Duolingo, Khan Academy)
  * - Narrative games with branching paths
@@ -194,12 +194,10 @@ const ADAPTIVE_FEATURES: AdaptiveFeature[] = [
 export function AdaptiveContentMorphing({
   temporalState,
   isReturningUser,
-  visitCount,
-  diagnosticCompleted,
   onFeatureExplored,
   id,
 }: AdaptiveContentMorphingProps) {
-  
+
   // Titre de section adaptatif
   const getSectionTitle = () => {
     switch (temporalState) {
@@ -220,14 +218,14 @@ export function AdaptiveContentMorphing({
         }
     }
   }
-  
+
   const { main, sub } = getSectionTitle()
-  
+
   return (
     <section id={id} className="py-20 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4">
         {/* Section Header with state indicator */}
-        <motion.div 
+        <motion.div
           className="text-center mb-16 space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -245,7 +243,7 @@ export function AdaptiveContentMorphing({
             {temporalState === 'future' && <Rocket className="w-4 h-4 text-green-500" />}
             <span>Mode : {temporalState === 'present' ? 'Découverte' : temporalState === 'past' ? 'Analyse' : 'Action'}</span>
           </motion.div>
-          
+
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             {main}
           </h2>
@@ -259,10 +257,10 @@ export function AdaptiveContentMorphing({
           <AnimatePresence mode="wait">
             {ADAPTIVE_FEATURES.map((feature, index) => {
               const content = feature[temporalState]
-              const Icon = temporalState === 'present' ? feature.present.icon : 
-                          temporalState === 'past' ? CheckCircle2 : 
-                          Rocket
-              
+              const Icon = temporalState === 'present' ? feature.present.icon :
+                temporalState === 'past' ? CheckCircle2 :
+                  Rocket
+
               return (
                 <motion.div
                   key={`${feature.id}-${temporalState}`}
@@ -275,20 +273,18 @@ export function AdaptiveContentMorphing({
                   <Card className="h-full border-2 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-xl">
                     <CardHeader>
                       <div className="flex items-start gap-4">
-                        <motion.div 
-                          className={`p-3 rounded-lg bg-gradient-to-br ${
-                            temporalState === 'present' ? 'from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800' :
+                        <motion.div
+                          className={`p-3 rounded-lg bg-gradient-to-br ${temporalState === 'present' ? 'from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800' :
                             temporalState === 'past' ? 'from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800' :
-                            'from-green-100 to-green-200 dark:from-green-900 dark:to-green-800'
-                          }`}
+                              'from-green-100 to-green-200 dark:from-green-900 dark:to-green-800'
+                            }`}
                           whileHover={{ scale: 1.1, rotate: 5 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
-                          <Icon className={`w-6 h-6 ${
-                            temporalState === 'present' ? 'text-blue-600 dark:text-blue-400' :
+                          <Icon className={`w-6 h-6 ${temporalState === 'present' ? 'text-blue-600 dark:text-blue-400' :
                             temporalState === 'past' ? 'text-purple-600 dark:text-purple-400' :
-                            'text-green-600 dark:text-green-400'
-                          }`} />
+                              'text-green-600 dark:text-green-400'
+                            }`} />
                         </motion.div>
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2">
@@ -301,7 +297,7 @@ export function AdaptiveContentMorphing({
                       <CardDescription className="text-base leading-relaxed">
                         {content.description}
                       </CardDescription>
-                      
+
                       {/* Present: Emotion */}
                       {temporalState === 'present' && (
                         <motion.div
@@ -313,7 +309,7 @@ export function AdaptiveContentMorphing({
                           💭 {feature.present.emotion}
                         </motion.div>
                       )}
-                      
+
                       {/* Past: Metrics + Risks */}
                       {temporalState === 'past' && (
                         <motion.div
@@ -327,11 +323,11 @@ export function AdaptiveContentMorphing({
                             {feature.past.metric}
                           </div>
                           <div className="text-sm text-red-600 dark:text-red-400">
-                             <strong>Risque :</strong> {feature.past.risk}
+                            <strong>Risque :</strong> {feature.past.risk}
                           </div>
                         </motion.div>
                       )}
-                      
+
                       {/* Future: Action steps */}
                       {temporalState === 'future' && (
                         <motion.div
@@ -358,7 +354,7 @@ export function AdaptiveContentMorphing({
             })}
           </AnimatePresence>
         </div>
-        
+
         {/* Contextual helper based on user journey */}
         <motion.div
           className="mt-12 text-center"
