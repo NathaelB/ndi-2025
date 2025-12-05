@@ -22,10 +22,9 @@ import { TalentModal } from "./ui/talent-modal";
 import { TalentForm } from "./ui/talent-form";
 import { TalentActionsMenu } from "./ui/talent-actions-menu";
 import { GoldFilters } from "./ui/gold-filters";
-import { GoldStats } from "./ui/gold-stats";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Loader2, SlidersHorizontal, X, Plus, UserPlus, Trophy } from "lucide-react";
+import { Loader2, SlidersHorizontal, X, UserPlus, Trophy } from "lucide-react";
 
 export function TalentMap() {
   const { data: talents, isLoading, error, refetch } = useTalents();
@@ -180,14 +179,7 @@ export function TalentMap() {
             <h1 className="text-4xl font-bold tracking-tight">
               Carte des Talents
             </h1>
-            <Button
-              onClick={handleAddTalent}
-              size="lg"
-              className="gap-2"
-            >
-              <Plus className="h-5 w-5" />
-              Créer un talent
-            </Button>
+
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Découvrez les compétences et expertises de notre communauté de
@@ -198,12 +190,25 @@ export function TalentMap() {
 
         {/* Stats Overview et Gold Stats */}
         {talents && talents.length > 0 && (
-          <div className="mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <StatsOverview talents={talents} />
-            </div>
-            <div>
-              <GoldStats talents={talents} />
+          <div className="mb-10 space-y-6">
+            {/* Stats Overview - Design horizontal moderne */}
+            <div className="relative overflow-hidden rounded-xl border border-primary/20 p-6">
+
+
+              <div className="relative">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                      📊 Vue d'ensemble
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Statistiques de la communauté en temps réel
+                    </p>
+                  </div>
+                  <Trophy className="h-8 w-8 text-gray-100" />
+                </div>
+                <StatsOverview talents={talents} />
+              </div>
             </div>
           </div>
         )}
