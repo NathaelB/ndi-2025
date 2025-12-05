@@ -103,3 +103,50 @@ jobs:
         run: |
           rm -rf ${{ runner.temp }}/.buildx-cache
           mv ${{ runner.temp }}/.buildx-cache-new ${{ runner.temp }}/.buildx-cache
+
+  push-manifest:
+    if: inputs.push || startsWith(github.ref, 'refs/tags/v') || github.ref_name == github.event.repository.default_branch
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - api
+          - keycloak
+          - webapp
+    steps:
+      - name: set up builx
+        uses: docker/setup-buildx-action@v3
+
+      - name: download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*-${{ matrix.target }}
+          merge-multiple: true
+
+      - name: log-in to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/nathaelb/ndi-2025-${{ matrix.target }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=pr
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: push manifest
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") $(printf 'ghcr.io/nathaelb/ndi-2025-${{ matrix.target }}@sha256:%s ' *)

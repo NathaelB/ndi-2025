@@ -10,40 +10,79 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './__root'
-import { Route as WelcomeImport } from './welcome'
-import { Route as IndexImport } from './index'
+import { Route as rootRoute } from "./__root";
+import { Route as WelcomeImport } from "./welcome";
+import { Route as IndexImport } from "./index";
+import { Route as DiagnosticResultImport } from "./diagnostic.result";
+import { Route as DiagnosticQuestionsImport } from "./diagnostic.questions";
+import { Route as DiagnosticIndexImport } from "./diagnostic.index";
 
 // Create/Update Routes
 
 const WelcomeRoute = WelcomeImport.update({
-  path: '/welcome',
+  path: "/welcome",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const IndexRoute = IndexImport.update({
-  path: '/',
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
+
+const DiagnosticResultRoute = DiagnosticResultImport.update({
+  path: "/diagnostic/result",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const DiagnosticQuestionsRoute = DiagnosticQuestionsImport.update({
+  path: "/diagnostic/questions",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const DiagnosticIndexRoute = DiagnosticIndexImport.update({
+  path: "/diagnostic/",
+  getParentRoute: () => rootRoute,
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeImport
-      parentRoute: typeof rootRoute
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/welcome": {
+      id: "/welcome";
+      path: "/welcome";
+      fullPath: "/welcome";
+      preLoaderRoute: typeof WelcomeImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/diagnostic/": {
+      id: "/diagnostic/";
+      path: "/diagnostic";
+      fullPath: "/diagnostic";
+      preLoaderRoute: typeof DiagnosticIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/diagnostic/questions": {
+      id: "/diagnostic/questions";
+      path: "/diagnostic/questions";
+      fullPath: "/diagnostic/questions";
+      preLoaderRoute: typeof DiagnosticQuestionsImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/diagnostic/result": {
+      id: "/diagnostic/result";
+      path: "/diagnostic/result";
+      fullPath: "/diagnostic/result";
+      preLoaderRoute: typeof DiagnosticResultImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
@@ -52,6 +91,9 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
   WelcomeRoute,
-})
+  DiagnosticIndexRoute,
+  DiagnosticQuestionsRoute,
+  DiagnosticResultRoute,
+});
 
 /* prettier-ignore-end */
