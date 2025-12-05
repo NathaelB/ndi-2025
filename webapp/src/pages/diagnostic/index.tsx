@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 export function DiagnosticIndexPage() {
   return (
-    <div className="h-screen overflow-hidden flex items-center">
+    <div className="min-h-screen md:h-screen overflow-y-auto md:overflow-hidden flex items-center">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Back Button */}
