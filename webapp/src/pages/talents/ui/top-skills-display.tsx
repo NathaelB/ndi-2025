@@ -55,9 +55,7 @@ export function TopSkillsDisplay({
           );
         })}
       </div>
-      <div className="text-xs text-gray-500 mt-2">
-        Poids: 1★ (base) à 5★ (haute valeur)
-      </div>
+
     </div>
   );
 }

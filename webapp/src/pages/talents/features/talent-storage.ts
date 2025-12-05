@@ -14,7 +14,7 @@ const DEFAULT_TALENTS: Talent[] = [
   {
     id: 9001,
     name: "Arnaud Castelltort",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Arnaud",
+    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Brian",
     role: "Directeur Technique Thales",
     bio: "Docteur en informatique spécialisé en théorie des graphes et architectures distribuées. Passionné par les systèmes complexes et les langages systèmes modernes.",
     location: "France",
@@ -85,7 +85,7 @@ const DEFAULT_TALENTS: Talent[] = [
   {
     id: 9002,
     name: "Samuel Ortiz",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Samuel",
+    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Easton",
     role: "Software Engineer at Rivos",
     bio: "Ingénieur système chez Rivos travaillant sur l'élaboration de processeurs pour le confidential computing. Expert en virtualisation et systèmes bas niveau.",
     location: "France",
@@ -117,10 +117,6 @@ const DEFAULT_TALENTS: Talent[] = [
       "Distributed Systems",
       "Real-time Systems",
       "WebAssembly",
-      "Go",
-      "Python",
-      "Kafka",
-      "Redis",
     ]),
     languages: ["Français", "Anglais"],
     talents: [
@@ -136,7 +132,7 @@ const DEFAULT_TALENTS: Talent[] = [
           "Développement d'un processeur RISC-V pour l'exécution sécurisée de workloads confidentiels",
         technologies: ["Rust", "RISC-V", "Hardware Security"],
         year: 2024,
-        openSource: false,
+        openSource: true,
       },
       {
         id: 90004,
