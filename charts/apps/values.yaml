@@ -17,7 +17,7 @@ apps:
 
     image:
       repository: ghcr.io/nathaelb/ndi-2025-webapp
-      tag: "sha-49cae57"
+      tag: "sha-51c3bbb"
       pullPolicy: Always
 
     # Container configuration
@@ -37,14 +37,14 @@ apps:
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
         traefik.ingress.kubernetes.io/router.tls: "true"
       hosts:
-        - host: ndi.urnontpellier.fr
+        - host: ndi.ferriskey.rs
           paths:
             - path: /
               pathType: Prefix
       tls:
         - secretName: webapp-tls
           hosts:
-            - ndi.urnontpellier.fr
+            - ndi.ferriskey.rs
 
     # Environment variables
     env: []
