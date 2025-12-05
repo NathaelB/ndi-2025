@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import type { Talent, Project } from "../features/mock-talents";
+import type { Talent, Project, Skill } from "../features/mock-talents";
+import { normalizeSkillToKey } from "../features/skill-normalizer";
 import { X, Plus, Trash2 } from "lucide-react";
 
 interface TalentFormProps {
@@ -39,6 +40,7 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
     description: "",
     technologies: [],
     year: new Date().getFullYear(),
+    openSource: false,
   });
   const [currentTech, setCurrentTech] = useState("");
 
@@ -48,19 +50,24 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
   };
 
   const addSkill = () => {
-    if (currentSkill.trim() && !formData.skills.includes(currentSkill.trim())) {
+    const trimmedSkill = currentSkill.trim();
+    if (trimmedSkill && !formData.skills.some((s) => s.name === trimmedSkill)) {
+      const newSkill: Skill = {
+        name: trimmedSkill,
+        key: normalizeSkillToKey(trimmedSkill),
+      };
       setFormData({
         ...formData,
-        skills: [...formData.skills, currentSkill.trim()],
+        skills: [...formData.skills, newSkill],
       });
       setCurrentSkill("");
     }
   };
 
-  const removeSkill = (skill: string) => {
+  const removeSkill = (skillKey: string) => {
     setFormData({
       ...formData,
-      skills: formData.skills.filter((s) => s !== skill),
+      skills: formData.skills.filter((s) => s.key !== skillKey),
     });
   };
 
@@ -138,6 +145,7 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
         description: currentProject.description,
         technologies: currentProject.technologies,
         year: currentProject.year || new Date().getFullYear(),
+        openSource: currentProject.openSource || false,
       };
       setFormData({
         ...formData,
@@ -148,6 +156,7 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
         description: "",
         technologies: [],
         year: new Date().getFullYear(),
+        openSource: false,
       });
     }
   };
@@ -269,11 +278,11 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
         </div>
         <div className="flex flex-wrap gap-2">
           {formData.skills.map((skill) => (
-            <Badge key={skill} variant="secondary" className="gap-1">
-              {skill}
+            <Badge key={skill.key} variant="secondary" className="gap-1">
+              {skill.name}
               <button
                 type="button"
-                onClick={() => removeSkill(skill)}
+                onClick={() => removeSkill(skill.key)}
                 className="ml-1 hover:text-destructive"
               >
                 <X className="h-3 w-3" />
@@ -372,6 +381,11 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Année: {project.year}
+                      {project.openSource && (
+                        <Badge variant="outline" className="ml-2 text-xs border-green-500 text-green-600">
+                          Open Source
+                        </Badge>
+                      )}
                     </p>
                   </div>
                   <Button
@@ -438,19 +452,38 @@ export function TalentForm({ talent, onSubmit, onCancel }: TalentFormProps) {
               </Badge>
             ))}
           </div>
-          <Input
-            type="number"
-            value={currentProject.year || new Date().getFullYear()}
-            onChange={(e) =>
-              setCurrentProject({
-                ...currentProject,
-                year: parseInt(e.target.value, 10),
-              })
-            }
-            placeholder="Année"
-            min="1990"
-            max={new Date().getFullYear() + 1}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              type="number"
+              value={currentProject.year || new Date().getFullYear()}
+              onChange={(e) =>
+                setCurrentProject({
+                  ...currentProject,
+                  year: parseInt(e.target.value, 10),
+                })
+              }
+              placeholder="Année"
+              min="1990"
+              max={new Date().getFullYear() + 1}
+            />
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md">
+              <input
+                type="checkbox"
+                id="openSource"
+                checked={currentProject.openSource || false}
+                onChange={(e) =>
+                  setCurrentProject({
+                    ...currentProject,
+                    openSource: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <Label htmlFor="openSource" className="text-sm cursor-pointer">
+                Open Source
+              </Label>
+            </div>
+          </div>
           <Button
             type="button"
             onClick={addProject}

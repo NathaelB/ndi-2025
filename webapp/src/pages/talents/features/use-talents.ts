@@ -3,7 +3,6 @@ import { mockTalents } from "./mock-talents";
 import type { Talent } from "./mock-talents";
 import {
   loadTalentsFromStorage,
-  saveTalentsToStorage,
   addTalent as addTalentToStorage,
   updateTalent as updateTalentInStorage,
   deleteTalent as deleteTalentFromStorage,

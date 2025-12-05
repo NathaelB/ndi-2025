@@ -17,7 +17,7 @@ export function useTalentSearch(talents: Talent[] | undefined) {
       const locationMatch = talent.location.toLowerCase().includes(query);
 
       const skillMatch = talent.skills.some((skill) =>
-        skill.toLowerCase().includes(query),
+        skill.name.toLowerCase().includes(query),
       );
 
       const languageMatch = talent.languages.some((lang) =>

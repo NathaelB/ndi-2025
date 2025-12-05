@@ -3,6 +3,8 @@ import { useTalents, useAddTalent, useUpdateTalent, useDeleteTalent } from "./fe
 import { useTalentSearch } from "./features/use-talent-search";
 import { useTalentFilters } from "./features/use-talent-filters";
 import { useTalentSort } from "./features/use-talent-sort";
+import { useGoldFilters } from "./features/use-gold-filters";
+import { sortByGoldScore } from "./features/gold-scoring";
 import type {
   AvailabilityFilter,
   VerificationFilter,
@@ -19,9 +21,11 @@ import { StatsOverview } from "./ui/stats-overview";
 import { TalentModal } from "./ui/talent-modal";
 import { TalentForm } from "./ui/talent-form";
 import { TalentActionsMenu } from "./ui/talent-actions-menu";
+import { GoldFilters } from "./ui/gold-filters";
+import { GoldStats } from "./ui/gold-stats";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Loader2, SlidersHorizontal, X, Plus, UserPlus } from "lucide-react";
+import { Loader2, SlidersHorizontal, X, Plus, UserPlus, Trophy } from "lucide-react";
 
 export function TalentMap() {
   const { data: talents, isLoading, error, refetch } = useTalents();
@@ -30,6 +34,7 @@ export function TalentMap() {
   const deleteTalentMutation = useDeleteTalent();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showGoldFilters, setShowGoldFilters] = useState(false);
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [verificationFilter, setVerificationFilter] =
@@ -52,12 +57,28 @@ export function TalentMap() {
   const { searchQuery, setSearchQuery, filteredTalents } =
     useTalentSearch(filteredByFilters);
 
-  // Enfin, trier les résultats
-  const sortedTalents = useTalentSort({
-    talents: filteredTalents,
+  // Appliquer les filtres Gold
+  const {
+    filteredTalents: goldFilteredTalents,
+    filters: goldFilters,
+    setMinTier,
+    setMinScore,
+    clearFilters: clearGoldFilters,
+    hasActiveFilters: hasActiveGoldFilters,
+  } = useGoldFilters(filteredTalents);
+
+  // Trier par Gold Score si demandé, sinon trier normalement
+  let sortedTalents = useTalentSort({
+    talents: goldFilteredTalents,
     sortField,
     sortDirection,
   });
+
+  // Option de tri par Gold Score
+  const [sortByGold, setSortByGold] = useState(false);
+  if (sortByGold) {
+    sortedTalents = sortByGoldScore(goldFilteredTalents);
+  }
 
   const skillsData = talents ? extractAllSkills(talents) : [];
 
@@ -73,6 +94,13 @@ export function TalentMap() {
     setAvailabilityFilter("all");
     setVerificationFilter("all");
   };
+
+  const clearAllFilters = () => {
+    clearFilters();
+    clearGoldFilters();
+  };
+
+  const hasAnyActiveFilters = hasActiveFilters || hasActiveGoldFilters;
 
   const handleAddTalent = () => {
     setEditingTalent(undefined);
@@ -168,10 +196,15 @@ export function TalentMap() {
           </p>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview et Gold Stats */}
         {talents && talents.length > 0 && (
-          <div className="mb-10">
-            <StatsOverview talents={talents} />
+          <div className="mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <StatsOverview talents={talents} />
+            </div>
+            <div>
+              <GoldStats talents={talents} />
+            </div>
           </div>
         )}
 
@@ -198,6 +231,19 @@ export function TalentMap() {
                 )}
               </Button>
               <Button
+                variant={showGoldFilters || hasActiveGoldFilters ? "default" : "outline"}
+                size="default"
+                onClick={() => setShowGoldFilters(!showGoldFilters)}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                Gold
+                {hasActiveGoldFilters && (
+                  <span className="ml-1 bg-primary-foreground text-primary rounded-full px-1.5 py-0.5 text-xs font-bold">
+                    !
+                  </span>
+                )}
+              </Button>
+              <Button
                 onClick={handleAddTalent}
                 size="default"
                 className="gap-2"
@@ -208,7 +254,7 @@ export function TalentMap() {
             </div>
           </div>
 
-          {/* Panel de filtres */}
+          {/* Panel de filtres standard */}
           {showFilters && (
             <div className="bg-muted/30 rounded-lg p-4 border animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-start justify-between mb-3">
@@ -249,6 +295,45 @@ export function TalentMap() {
               />
             </div>
           )}
+
+          {/* Panel de filtres Gold */}
+          {showGoldFilters && (
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-4 border border-amber-200 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-amber-600" />
+                  Filtres Gold
+                </h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant={sortByGold ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSortByGold(!sortByGold)}
+                    className="h-8 text-xs"
+                  >
+                    <Trophy className="h-3 w-3 mr-1" />
+                    Trier par score
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowGoldFilters(false)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <GoldFilters
+                minTier={goldFilters.minTier}
+                minScore={goldFilters.minScore}
+                onMinTierChange={setMinTier}
+                onMinScoreChange={setMinScore}
+                onClear={clearGoldFilters}
+                hasActiveFilters={hasActiveGoldFilters}
+              />
+            </div>
+          )}
         </div>
 
         {/* Visualisation des compétences */}
@@ -282,17 +367,30 @@ export function TalentMap() {
                 )}
               </p>
             </div>
-            {hasActiveFilters && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearFilters}
-                className="shrink-0"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Effacer les filtres
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {sortByGold && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortByGold(false)}
+                  className="shrink-0"
+                >
+                  <Trophy className="h-3 w-3 mr-1" />
+                  Tri Gold actif
+                </Button>
+              )}
+              {hasAnyActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="shrink-0"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Effacer les filtres
+                </Button>
+              )}
+            </div>
           </div>
 
           {sortedTalents.length === 0 ? (
@@ -300,13 +398,14 @@ export function TalentMap() {
               <p className="text-muted-foreground mb-2">
                 Aucun talent trouvé pour cette recherche
               </p>
-              {(searchQuery || hasActiveFilters) && (
+              {(searchQuery || hasAnyActiveFilters) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
                     setSearchQuery("");
-                    clearFilters();
+                    clearAllFilters();
+                    setSortByGold(false);
                   }}
                   className="mt-2"
                 >

@@ -11,7 +11,7 @@ export function extractAllSkills(talents: Talent[]): SkillFrequency[] {
 
   talents.forEach((talent) => {
     talent.skills.forEach((skill) => {
-      skillMap.set(skill, (skillMap.get(skill) || 0) + 1);
+      skillMap.set(skill.name, (skillMap.get(skill.name) || 0) + 1);
     });
   });
 
@@ -53,7 +53,7 @@ export function getUniqueSkills(talents: Talent[]): string[] {
 
   talents.forEach((talent) => {
     talent.skills.forEach((skill) => {
-      skillSet.add(skill);
+      skillSet.add(skill.name);
     });
   });
 

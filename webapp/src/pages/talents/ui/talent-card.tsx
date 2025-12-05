@@ -2,6 +2,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Talent } from "../features/mock-talents";
+import { calculateGoldScore } from "../features/gold-scoring";
+import { GoldBadge } from "./gold-badge";
+import { TopSkillsDisplay } from "./top-skills-display";
 import {
   CheckCircle2,
   MapPin,
@@ -23,6 +26,7 @@ interface TalentCardProps {
 }
 
 export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
+  const goldScore = calculateGoldScore(talent);
   const displayedSkills = talent.skills.slice(0, 4);
   const remainingSkills = talent.skills.length - displayedSkills.length;
   const displayedProjects = talent.projects.slice(0, 2);
@@ -65,7 +69,7 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
 
           {/* Nom et rôle */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-lg truncate">
                   {talent.name}
@@ -85,6 +89,10 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
                   {availability.label}
                 </span>
               </div>
+            </div>
+            {/* Gold Badge sous le nom */}
+            <div className="mt-1">
+              <GoldBadge score={goldScore} size="sm" showScore={false} />
             </div>
           </div>
         </div>
@@ -125,6 +133,11 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Gold Score Breakdown */}
+        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-3">
+          <GoldBadge score={goldScore} size="md" showScore={true} showBreakdown={false} />
+        </div>
+
         {/* Bio */}
         <p className="text-sm text-muted-foreground line-clamp-2">
           {talent.bio}
@@ -151,8 +164,8 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
           </div>
           <div className="flex flex-wrap gap-1.5">
             {displayedSkills.map((skill) => (
-              <Badge key={skill} variant="secondary" className="text-xs">
-                {skill}
+              <Badge key={skill.key} variant="secondary" className="text-xs">
+                {skill.name}
               </Badge>
             ))}
             {remainingSkills > 0 && (
@@ -161,6 +174,11 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
               </Badge>
             )}
           </div>
+        </div>
+
+        {/* Top Skills avec poids */}
+        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-3">
+          <TopSkillsDisplay score={goldScore} maxSkills={5} />
         </div>
 
         {/* Talents/Soft skills */}
@@ -221,6 +239,14 @@ export function TalentCard({ talent, onEdit, onDelete }: TalentCardProps) {
                         {tech}
                       </span>
                     ))}
+                    {project.openSource && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs border-green-500 text-green-600 bg-green-50"
+                      >
+                        Open Source
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))}
