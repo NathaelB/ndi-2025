@@ -53,11 +53,10 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
           {question.options.map((option) => (
             <div
               key={option.value}
-              className={`flex items-start space-x-3 p-4 rounded-lg border transition-all cursor-pointer ${
-                value === option.value
-                  ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
-                  : "border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-600"
-              }`}
+              className={`flex items-start space-x-3 p-4 rounded-lg border transition-all cursor-pointer ${value === option.value
+                ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
+                : "border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 hover:border-slate-600"
+                }`}
             >
               <RadioGroupItem
                 value={option.value}

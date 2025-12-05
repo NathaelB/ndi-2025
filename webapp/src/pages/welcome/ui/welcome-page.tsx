@@ -4,6 +4,9 @@ import { TimelineNavigator } from './timeline-navigator'
 import { AdaptiveContentMorphing } from './adaptive-content-morphing'
 import { ContextualActionPredictor } from './contextual-action-predictor'
 import { ScrollIndicator } from './scroll-indicator'
+import { Button } from '@/components/ui/button'
+import { Users, ArrowRight } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 /**
  * WELCOME PAGE - Navigation Temporelle Cognitive
@@ -26,6 +29,7 @@ import { ScrollIndicator } from './scroll-indicator'
  */
 
 export function WelcomePage() {
+  const navigate = useNavigate()
   const {
     temporalState,
     setTemporalState,
@@ -99,6 +103,25 @@ export function WelcomePage() {
               animate={{ opacity: 1, scaleX: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
             />
+
+            {/* Lien vers la carte des talents */}
+            <motion.div
+              className="pt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.6 }}
+            >
+              <Button
+                onClick={() => navigate({ to: '/talents/map' })}
+                size="lg"
+                variant="outline"
+                className="gap-3 text-base px-6 py-3 border-2 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>Découvrir la carte des talents</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
           </motion.div>
 
           {/* Timeline Navigator avec meilleur espacement */}
