@@ -44,9 +44,9 @@ export function WelcomePage() {
     <div className="flex flex-col min-h-screen">
       {/* Hero section amélioré */}
       <section className="relative overflow-hidden bg-linear-to-b from-blue-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        <div className="container mx-auto px-4 py-16 sm:py-24 lg:py-32">
+        <div className="container mx-auto px-4 py-8 sm:py-12 lg:py-16">
           <motion.div
-            className="flex flex-col items-center text-center space-y-8 max-w-5xl mx-auto"
+            className="flex flex-col items-center text-center space-y-6 max-w-5xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -57,15 +57,12 @@ export function WelcomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              <Badge variant="secondary" className="px-5 py-2.5 text-sm font-medium shadow-lg backdrop-blur-sm">
-                <Shield className="w-4 h-4 mr-2 inline" />
-                Projet NDI 2025
-              </Badge>
+              
             </motion.div>
 
             {/* Main Title avec meilleure hiérarchie */}
             <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.7 }}
