@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useTalents, useAddTalent, useUpdateTalent, useDeleteTalent } from "./features/use-talents";
 import { useTalentSearch } from "./features/use-talent-search";
 import { useTalentFilters } from "./features/use-talent-filters";
@@ -24,9 +25,10 @@ import { TalentActionsMenu } from "./ui/talent-actions-menu";
 import { GoldFilters } from "./ui/gold-filters";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Loader2, SlidersHorizontal, X, UserPlus, Trophy } from "lucide-react";
+import { Loader2, SlidersHorizontal, X, UserPlus, Trophy, ArrowLeft, Home } from "lucide-react";
 
 export function TalentMap() {
+  const navigate = useNavigate();
   const { data: talents, isLoading, error, refetch } = useTalents();
   const addTalentMutation = useAddTalent();
   const updateTalentMutation = useUpdateTalent();
@@ -173,6 +175,20 @@ export function TalentMap() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Bouton retour vers Welcome */}
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate({ to: '/welcome' })}
+            variant="ghost"
+            size="sm"
+            className="gap-2 hover:gap-3 transition-all duration-300 group"
+          >
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            <Home className="h-4 w-4" />
+            <span>Retour à l'accueil</span>
+          </Button>
+        </div>
+
         {/* En-tête */}
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-4 mb-3">

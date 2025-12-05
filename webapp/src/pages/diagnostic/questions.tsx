@@ -88,11 +88,10 @@ export function DiagnosticQuestionsPage() {
               <button
                 key={option.value}
                 onClick={() => handleAnswerChange(option.value)}
-                className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-300 ${
-                  answers[currentQuestion.id] === option.value
+                className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-300 ${answers[currentQuestion.id] === option.value
                     ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
                     : "border-slate-700/50 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm"
-                }`}
+                  }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -105,11 +104,7 @@ export function DiagnosticQuestionsPage() {
                       </div>
                     )}
                   </div>
-                  {option.score > 0 && (
-                    <div className="flex-shrink-0 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-semibold">
-                      +{option.score}
-                    </div>
-                  )}
+
                 </div>
               </button>
             ))}
@@ -131,11 +126,10 @@ export function DiagnosticQuestionsPage() {
           <Button
             onClick={handleNext}
             disabled={!hasAnswered}
-            className={`gap-2 px-8 ${
-              hasAnswered
+            className={`gap-2 px-8 ${hasAnswered
                 ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/30"
                 : "bg-slate-700 text-slate-400"
-            }`}
+              }`}
           >
             {isLastStep ? "Voir les résultats" : "Suivant"}
             <ChevronRight className="w-5 h-5" />
