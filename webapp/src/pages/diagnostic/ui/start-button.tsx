@@ -17,7 +17,7 @@ export function StartButton({ className }: StartButtonProps) {
     <Button
       size="lg"
       onClick={handleStart}
-      className={`gap-2 text-lg px-8 py-6 ${className}`}
+      className={`gap-2 text-lg px-8 py-6 ${className} bg-slate-800 text-white`}
     >
       <Shield className="w-6 h-6" />
       Commencer le diagnostic

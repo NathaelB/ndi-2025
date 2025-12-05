@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { DIAGNOSTIC_QUESTIONS } from "./features/types";
 import { useScore } from "./features/score-context";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function DiagnosticQuestionsPage() {
@@ -60,27 +61,29 @@ export function DiagnosticQuestionsPage() {
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
           {/* Category badge */}
           <div className="flex justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 backdrop-blur-md border border-slate-700/50">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700 shadow-xl">
               <span className="text-xl">
                 {currentQuestion.category === "souverainete" && "🔐"}
                 {currentQuestion.category === "durabilite" && "🌱"}
                 {currentQuestion.category === "inclusion" && "🤝"}
               </span>
-              <span className="text-sm font-medium text-slate-300 capitalize">
+              <span className="text-sm font-medium text-white capitalize">
                 {currentQuestion.category}
               </span>
             </div>
           </div>
 
           {/* Question title */}
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-              {currentQuestion.title}
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              {currentQuestion.description}
-            </p>
-          </div>
+          <Card className="border-2 border-slate-700 bg-slate-900/90 backdrop-blur-xl shadow-2xl">
+            <CardContent className="text-center space-y-3 py-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight drop-shadow-lg">
+                {currentQuestion.title}
+              </h2>
+              <p className="text-lg text-slate-100 max-w-2xl mx-auto">
+                {currentQuestion.description}
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Options */}
           <div className="space-y-3 pt-4">
@@ -89,17 +92,17 @@ export function DiagnosticQuestionsPage() {
                 key={option.value}
                 onClick={() => handleAnswerChange(option.value)}
                 className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-300 ${answers[currentQuestion.id] === option.value
-                    ? "border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20"
-                    : "border-slate-700/50 bg-slate-900/30 hover:bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm"
+                  ? "border-cyan-400 bg-cyan-500/20 shadow-xl shadow-cyan-500/30 backdrop-blur-xl"
+                  : "border-slate-700 bg-slate-900/80 hover:bg-slate-800/90 hover:border-slate-600 backdrop-blur-xl shadow-lg"
                   }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="font-semibold text-white text-lg mb-1">
+                    <div className="font-semibold text-white text-lg mb-1 drop-shadow">
                       {option.label}
                     </div>
                     {option.description && (
-                      <div className="text-sm text-slate-400">
+                      <div className="text-sm text-slate-300">
                         {option.description}
                       </div>
                     )}
@@ -117,7 +120,7 @@ export function DiagnosticQuestionsPage() {
             variant="ghost"
             onClick={handlePrevious}
             disabled={currentStep === 0}
-            className="gap-2 text-slate-300 hover:text-white hover:bg-slate-800/50 disabled:opacity-30"
+            className="gap-2 text-slate-300 hover:text-white hover:bg-slate-800/90 disabled:opacity-30 backdrop-blur-xl shadow-lg"
           >
             <ChevronLeft className="w-5 h-5" />
             Précédent
@@ -127,8 +130,8 @@ export function DiagnosticQuestionsPage() {
             onClick={handleNext}
             disabled={!hasAnswered}
             className={`gap-2 px-8 ${hasAnswered
-                ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/30"
-                : "bg-slate-700 text-slate-400"
+              ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/30"
+              : "bg-slate-700 text-slate-400"
               }`}
           >
             {isLastStep ? "Voir les résultats" : "Suivant"}
