@@ -121,7 +121,13 @@ export default class DiagnosticsService {
 
     let totalQuestions = 0
 
-    for (const answer of diagnostic.answers) {
+    if (!diagnostic.answers || diagnostic.answers.length === 0) {
+      throw new Error('No answers found to calculate score')
+    }
+
+    const answers = diagnostic.answers
+
+    for (const answer of answers) {
       const impactScores = answer.questionOption.impactScores
 
       if (!impactScores) continue

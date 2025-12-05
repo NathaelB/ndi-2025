@@ -3,8 +3,6 @@ import QuestionsService from '#services/questions_service'
 import { inject } from '@adonisjs/core'
 import { ApiOperation, ApiResponse } from '@foadonis/openapi/decorators'
 import Question from '#models/question'
-import { CategoryWithQuestionsResponse } from '#responses/category_with_questions_response'
-import { CategoriesWithQuestionsResponse } from '#responses/categories_with_questions_response'
 
 @inject()
 export default class QuestionsController {
@@ -15,7 +13,7 @@ export default class QuestionsController {
    * Récupère toutes les questions actives avec leurs options (sans les scores)
    */
   @ApiOperation({ summary: 'Get all active questions with their options (without scores)' })
-  @ApiResponse({ type: [Question] })
+  @ApiResponse({ type: () => [Question] })
   async index({ request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
@@ -34,7 +32,7 @@ export default class QuestionsController {
    * Récupère une question spécifique avec ses options (sans les scores)
    */
   @ApiOperation({ summary: 'Get a specific question with its options (without scores)' })
-  @ApiResponse({ type: Question })
+  @ApiResponse({ type: () => Question })
   async show({ params, response }: HttpContext) {
     const question = await this.questionsService.getQuestionById(params.id)
     const formattedQuestion = this.questionsService.formatQuestion(question)
@@ -49,7 +47,6 @@ export default class QuestionsController {
    * Récupère toutes les questions d'une catégorie (sans les scores)
    */
   @ApiOperation({ summary: 'Get all questions for a category (without scores)' })
-  @ApiResponse({ type: CategoryWithQuestionsResponse })
   async byCategory({ params, request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
@@ -90,7 +87,6 @@ export default class QuestionsController {
    * Récupère toutes les catégories avec leurs questions (sans les scores)
    */
   @ApiOperation({ summary: 'Get all categories with their questions (without scores)' })
-  @ApiResponse({ type: CategoriesWithQuestionsResponse })
   async categoriesWithQuestions({ request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
