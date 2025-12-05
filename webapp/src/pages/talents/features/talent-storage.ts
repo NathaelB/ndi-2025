@@ -148,6 +148,47 @@ const DEFAULT_TALENTS: Talent[] = [
     availability: "busy",
     linkedin: "samuelortiz",
   },
+  {
+    id: 9003,
+    name: "Baptiste Parmantier",
+    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Easton",
+    role: "Software Engineer at Natalia",
+    bio: "Ingénieur logicielle, passionné par le développement de solutions innovantes en Rust et Kubernetes.",
+    location: "France",
+    experience: "8 ans",
+    skills: stringsToSkills([
+      "Rust",
+      "Kubernetes",
+      "PostgreSQL",
+      "Keycloak",
+      "Docker",
+      "Dart",
+    ]),
+    languages: ["Français", "Anglais"],
+    talents: ["Architecture logicielle"],
+    projects: [
+      {
+        id: 90005,
+        name: "FerrisKey (IAM)",
+        description:
+          "Développement d'une solution IAM open-source en Rust pour la gestion des identités et des accès",
+        technologies: ["Rust", "Kubernetes", "Cybersecurity"],
+        year: 2025,
+        openSource: true,
+      },
+      {
+        id: 90006,
+        name: "Mineral (Framework Bot Discord)",
+        description:
+          "Création d'un framework en Dart pour le développement de bots Discord performants",
+        technologies: ["Dart"],
+        year: 2024,
+        openSource: true,
+      },
+    ],
+    verified: true,
+    availability: "busy",
+  },
 ];
 
 export interface TalentStorage {

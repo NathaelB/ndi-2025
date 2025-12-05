@@ -39,9 +39,9 @@ export function GoldBadge({
         }}
       >
         <span className="text-lg">{tierEmoji}</span>
-        <span>{tierLabel}</span>
+        <span className="text-white">{tierLabel}</span>
         {showScore && (
-          <span className="font-bold ml-1">
+          <span className="font-bold ml-1 text-white">
             {score.total} pts
           </span>
         )}

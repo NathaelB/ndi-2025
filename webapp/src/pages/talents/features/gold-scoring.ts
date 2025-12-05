@@ -157,9 +157,9 @@ export const BONUS_POINTS = {
 
 // Seuils pour les niveaux Gold
 export const GOLD_TIERS = {
-  PLATINUM: 350,
-  GOLD: 250,
-  SILVER: 180,
+  PLATINUM: 600,
+  GOLD: 400,
+  SILVER: 200,
   BRONZE: 90,
 } as const;
 
