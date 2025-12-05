@@ -15,6 +15,7 @@
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
+    "#errors/*": "./app/errors/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
     "#models/*": "./app/models/*.js",
     "#mails/*": "./app/mails/*.js",
@@ -43,6 +44,7 @@
     "@japa/plugin-adonisjs": "^4.0.0",
     "@japa/runner": "^4.2.0",
     "@swc/core": "1.11.24",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/luxon": "^3.7.1",
     "@types/node": "^22.15.18",
     "eslint": "^9.26.0",
@@ -59,6 +61,7 @@
     "@adonisjs/lucid": "^21.6.1",
     "@foadonis/openapi": "^0.4.1",
     "@vinejs/vine": "^3.0.1",
+    "jsonwebtoken": "^9.0.3",
     "luxon": "^3.7.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2"

@@ -9,10 +9,12 @@
 
 import router from '@adonisjs/core/services/router'
 import openapi from '@foadonis/openapi/services/main'
+import { middleware } from './kernel.js'
 const HealthCheckController = () => import('#controllers/health_checks_controller')
 const DiagnosticAnswersController = () => import('#controllers/diagnostic_answers_controller')
 const QuestionsController = () => import('#controllers/questions_controller')
 const DiagnosticsController = () => import('#controllers/diagnostics_controller')
+const UserInfoController = () => import('#controllers/userinfo_controller')
 
 openapi.registerRoutes()
 
@@ -72,6 +74,8 @@ router
 
         // Supprimer une réponse
         router.delete('/answers/:id', [DiagnosticAnswersController, 'destroy'])
+
+        router.get('/userinfo', [UserInfoController, 'index']).middleware(middleware.auth())
       })
       .prefix('/v1')
   })
