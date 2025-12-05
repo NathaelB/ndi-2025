@@ -121,17 +121,13 @@ export function TalentCard({ talent }: TalentCardProps) {
                 </div>
                 {/* Gold Badge sous le nom */}
                 <div className="mt-1">
-                  <GoldBadge score={goldScore} size="sm" showScore={false} />
+                  <GoldBadge score={goldScore} size="sm" showScore={true} />
                 </div>
               </div>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* Gold Score Breakdown */}
-            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-3">
-              <GoldBadge score={goldScore} size="md" showScore={true} showBreakdown={false} />
-            </div>
 
             {/* Bio */}
             <p className="text-sm text-muted-foreground line-clamp-2">
